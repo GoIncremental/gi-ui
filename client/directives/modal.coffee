@@ -7,13 +7,13 @@ angular.module('app').directive 'modal'
     title: '@'
     level: '@'
     visible: '=ngModel'
-    okOk: '&'
-  link = (scope, elem, attrs) ->
-    elm.addClass 'modal hide'
+    onOk: '&'
+  link: (scope, elem, attrs) ->
+    elem.addClass 'modal hide'
 
     scope.$watch 'visible', (value) ->
-      showModal = 'hide' unless value or 'show'
-      elm.modal showModal
+      showModal =  if value then 'show' else 'hide'
+      elem.modal showModal
 
     scope.hide = () ->
       scope.visible = false
