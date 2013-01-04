@@ -27,4 +27,32 @@ angular.module('app').directive('modal', [
   }
 ]);
 
+
+angular.module('app').directive('datatable', [
+  function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/gint-ui/dataTable.html',
+      transclude: true,
+      scope: {},
+      controller: [
+        '$scope', '$element', '$transclude', function($scope, $element, $transclude) {
+          console.log('datatable scope id = ' + $scope.$id);
+          console.log('datatable parent scope id = ' + $scope.$parent.$id);
+          return $transclude(function(clone) {
+            var header, headerBlock;
+            console.log('transclude scope id = ' + clone.scope().$id);
+            console.log('transclude parent scope id= ' + clone.scope().$parent.$id);
+            headerBlock = $element.find('table thead');
+            header = clone.filter('div.header');
+            return angular.forEach(header.children(), function(e) {
+              return headerBlock.append('<th>' + e.innerText + '</th>');
+            });
+          });
+        }
+      ]
+    };
+  }
+]);
+
 ;
