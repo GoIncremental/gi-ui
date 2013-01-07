@@ -8,6 +8,8 @@ angular.module('app').directive 'datatable'
     selectedItems: '='
     destroy: '&'
     view: '&'
+    altView: '&'
+    edit: '&'
   compile: ($elem, $attrs, $transcludeFn) ->
     #this is the place to do DOM maniupulation
     $transcludeFn $elem, (clone) ->
@@ -17,7 +19,7 @@ angular.module('app').directive 'datatable'
         headerBlock.append '<th>' + e.innerText + '</th>'
 
       bodyBlock = $elem.find('table tbody')
-      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>'
+      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{row_selected: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>'
 
       body = clone.filter('div.body')
 
@@ -106,15 +108,22 @@ angular.module('app').directive 'datatable'
             $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
             .push($scope.filteredItems[i])
 
-      $scope.range = (start, end) ->
-        ret = []
-        if not end
-          end = start
-          start = 0
+      $scope.range = (currentPage) ->
+        max = $scope.pagedItems.length - 1
+        if max < 1
+          return []
 
-        for num in [start..end]
-          ret.push num
-        ret
+        end = currentPage + 2 unless max < currentPage + 2
+        start = currentPage - 2
+        if currentPage < 3
+          start = 0
+          end = 4 unless max < 4
+
+        if currentPage > max - 3
+          end = max
+          start = max - 4 unless max < 4
+         
+        [start..end]
 
       $scope.prevPage = ->
         if $scope.currentPage > 0
