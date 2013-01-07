@@ -35,93 +35,131 @@ angular.module('app').directive('datatable', [
       templateUrl: '/views/gint-ui/dataTable.html',
       transclude: true,
       scope: {
-        items: '='
+        items: '=',
+        selectedItems: '=',
+        destroy: '&',
+        view: '&'
       },
-      link: function($scope, element, attrs) {
-        $scope.$watch('items.length', function(val, old_val) {
-          return $scope.search();
+      compile: function($elem, $attrs, $transcludeFn) {
+        $transcludeFn($elem, function(clone) {
+          var body, bodyBlock, header, headerBlock;
+          headerBlock = $elem.find('table thead tr');
+          header = clone.filter('div.header');
+          angular.forEach(header.children(), function(e) {
+            return headerBlock.append('<th>' + e.innerText + '</th>');
+          });
+          bodyBlock = $elem.find('table tbody');
+          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>');
+          body = clone.filter('div.body');
+          return angular.forEach(body.children(), function(e) {
+            var elem, html, property;
+            elem = angular.element(e);
+            if (elem.hasClass('property-link')) {
+              property = elem.attr('gi-property');
+              html = angular.element(e.innerHTML).append('{{item.' + property + '}}');
+              return bodyBlock.children().append('<td>' + html[0].outerHTML + '</td>');
+            } else if (elem.hasClass('property-mailto')) {
+              property = elem.attr('gi-property');
+              return bodyBlock.children().append('<td><a ng-href="mailto:{{item.' + property + '}}"">{{item.' + property + '}}</a></td>');
+            } else if (elem.hasClass('property')) {
+              return bodyBlock.children().append('<td>{{item.' + e.innerText + '}}</td>');
+            } else if (elem.hasClass('literal')) {
+              return bodyBlock.children().append('<td>' + e.innerHTML + '</td>');
+            } else if (elem.hasClass('expression')) {
+              return bodyBlock.children().append('<td>{{' + e.innerText + '}}</td>');
+            }
+          });
         });
-        $scope.filteredItems = [];
-        $scope.groupedItems = [];
-        $scope.itemsPerPage = 20;
-        $scope.pagedItems = [];
-        $scope.currentPage = 0;
-        $scope.things = $scope.items;
-        $scope.search = function() {
-          console.log(' datatable scope search');
-          $scope.filteredItems = $filter('filter')($scope.items, function(item) {
-            if (!$scope.query) {
-              return true;
-            }
-            if ($filter('lowercase')(item.name).indexOf($filter('lowercase')($scope.query)) !== -1) {
-              return true;
-            }
-            return false;
+        return function($scope) {
+          $scope.$watch('items.length', function() {
+            return $scope.search();
           });
-          $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-            return item.name;
-          }, false);
-          $scope.currentPage = 0;
-          return $scope.groupToPages();
-        };
-        $scope.groupToPages = function() {
-          var i, thing, _i, _len, _ref, _results;
+          $scope.filteredItems = [];
+          $scope.groupedItems = [];
+          $scope.itemsPerPage = 20;
           $scope.pagedItems = [];
-          _ref = $scope.filteredItems;
-          _results = [];
-          for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-            thing = _ref[i];
-            if (i % $scope.itemsPerPage === 0) {
-              _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]]);
+          $scope.currentPage = 0;
+          $scope.things = $scope.items;
+          $scope.selectAll = "All";
+          $scope.toggleSelectAll = function() {
+            if ($scope.selectAll === "All") {
+              angular.forEach($scope.items, function(item) {
+                return item.selected = true;
+              });
+              $scope.selectedItems = $scope.items;
+              return $scope.selectAll = "None";
             } else {
-              _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]));
+              angular.forEach($scope.items, function(item) {
+                return item.selected = false;
+              });
+              $scope.selectedItems = [];
+              return $scope.selectAll = "All";
             }
-          }
-          return _results;
-        };
-        $scope.range = function(start, end) {
-          var num, ret, _i;
-          ret = [];
-          if (!end) {
-            end = start;
-            start = 0;
-          }
-          for (num = _i = start; start <= end ? _i <= end : _i >= end; num = start <= end ? ++_i : --_i) {
-            ret.push(num);
-          }
-          return ret;
-        };
-        $scope.prevPage = function() {
-          if ($scope.currentPage > 0) {
-            return $scope.currentPage = $scope.currentPage - 1;
-          }
-        };
-        $scope.nextPage = function() {
-          if ($scope.currentPage < $scope.pagedItems.length - 1) {
-            return $scope.currentPage = $scope.currentPage + 1;
-          }
-        };
-        $scope.setPage = function(n) {
-          return $scope.currentPage = n;
-        };
-        return $scope.search();
-      },
-      controller: [
-        '$scope', '$element', '$transclude', function($scope, $element, $transclude) {
-          console.log('datatable scope id = ' + $scope.$id);
-          console.log('datatable parent scope id = ' + $scope.$parent.$id);
-          return $transclude(function(clone) {
-            var header, headerBlock;
-            console.log('transclude scope id = ' + clone.scope().$id);
-            console.log('transclude parent scope id= ' + clone.scope().$parent.$id);
-            headerBlock = $element.find('table thead');
-            header = clone.filter('div.header');
-            return angular.forEach(header.children(), function(e) {
-              return headerBlock.append('<th>' + e.innerText + '</th>');
+          };
+          $scope.select = function() {
+            return $scope.selectedItems = $filter('filter')($scope.items, function(item) {
+              return item.selected;
             });
-          });
-        }
-      ]
+          };
+          $scope.search = function() {
+            $scope.filteredItems = $filter('filter')($scope.items, function(item) {
+              if (!$scope.query) {
+                return true;
+              }
+              if ($filter('lowercase')(item.name).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                return true;
+              }
+              return false;
+            });
+            $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
+              return item.name;
+            }, false);
+            $scope.currentPage = 0;
+            return $scope.groupToPages();
+          };
+          $scope.groupToPages = function() {
+            var i, thing, _i, _len, _ref, _results;
+            $scope.pagedItems = [];
+            _ref = $scope.filteredItems;
+            _results = [];
+            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+              thing = _ref[i];
+              if (i % $scope.itemsPerPage === 0) {
+                _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]]);
+              } else {
+                _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]));
+              }
+            }
+            return _results;
+          };
+          $scope.range = function(start, end) {
+            var num, ret, _i;
+            ret = [];
+            if (!end) {
+              end = start;
+              start = 0;
+            }
+            for (num = _i = start; start <= end ? _i <= end : _i >= end; num = start <= end ? ++_i : --_i) {
+              ret.push(num);
+            }
+            return ret;
+          };
+          $scope.prevPage = function() {
+            if ($scope.currentPage > 0) {
+              return $scope.currentPage = $scope.currentPage - 1;
+            }
+          };
+          $scope.nextPage = function() {
+            if ($scope.currentPage < $scope.pagedItems.length - 1) {
+              return $scope.currentPage = $scope.currentPage + 1;
+            }
+          };
+          $scope.setPage = function(n) {
+            return $scope.currentPage = n;
+          };
+          return $scope.search();
+        };
+      }
     };
   }
 ]);
