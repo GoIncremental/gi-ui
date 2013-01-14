@@ -1,6 +1,6 @@
-<div class="row-fluid">
+<div class="row-fluid" ng-class="{hidden: options().disableSearch}">
   <div class="span4">
-    <input class="search-query" placeholder="Search" ng-model="query" ng-change="search()">
+    <input class="search-query" placeholder="Search" ng-model="query">
   </div>
 </div>
 <div class="row-fluid">

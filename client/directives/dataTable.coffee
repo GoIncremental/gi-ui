@@ -1,11 +1,17 @@
 angular.module('app').directive 'datatable'
-, [ '$filter', ($filter) ->
+, [ '$filter', '$timeout'
+, ($filter, $timeout) ->
   restrict: 'E'
-  templateUrl: '/views/gint-ui/dataTable.html'
+  templateUrl: '/views/gint-ui/data-table.html'
   transclude: true
   scope:
     items: '='
     selectedItems: '='
+    sortDirection: '='
+    sortProperty: '='
+    options: '&'
+    search: '&'
+    sort: '&'
     destroy: '&'
     view: '&'
     altView: '&'
@@ -19,7 +25,7 @@ angular.module('app').directive 'datatable'
         headerBlock.append '<th>' + e.innerText + '</th>'
 
       bodyBlock = $elem.find('table tbody')
-      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{row_selected: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>'
+      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{info: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>'
 
       body = clone.filter('div.body')
 
@@ -44,18 +50,28 @@ angular.module('app').directive 'datatable'
     #so we'll go ahead and define it here as the last step of compile  
     ($scope) ->
 
-      $scope.$watch 'items.length', () ->
-        $scope.search()
-
       $scope.filteredItems = []
       $scope.groupedItems = []
       $scope.itemsPerPage = 20
       $scope.pagedItems = []
       $scope.currentPage = 0
+      $scope.selectAll = "All"  
+      options = $scope.options() 
 
-      $scope.things = $scope.items
-      
-      $scope.selectAll = "All"   
+      $scope.$watch 'items.length', () ->
+        $scope.refresh()
+
+      $scope.$watch 'sortProperty', () ->
+        $scope.refresh()
+
+      aPromise = null
+
+      $scope.$watch 'query',  () ->
+        if aPromise
+          $timeout.cancel aPromise
+
+        aPromise = $timeout $scope.refresh, 500
+        aPromise
 
       $scope.toggleSelectAll = ->
         if $scope.selectAll is "All"
@@ -73,25 +89,35 @@ angular.module('app').directive 'datatable'
         $scope.selectedItems = $filter('filter')($scope.items, (item) ->
           item.selected)
 
-      $scope.search = ->
-        $scope.filteredItems = $filter('filter')($scope.items, (item) ->
+      $scope.refresh = ->
+        #allow the parent controller the opportunity to pre-filter
+        if options.customSearch
+          $scope.filteredItems = $scope.search {query: $scope.query}
+        else
+          $scope.filteredItems = $scope.items
+        #check if we're searching for a day string or if the query is in the title
+        $scope.filteredItems = $filter('filter')($scope.filteredItems , (item) ->
           #we're not searching for anything - so return true
           if not $scope.query
             return true
-
-          #check if we're searching for a day string or if the query is in the title
-          if $filter('lowercase')(item.name)
-          .indexOf($filter('lowercase')($scope.query)) != -1
-            return true
-
-          return false
+          
+          found = false
+          angular.forEach options.searchProperties, (property) ->
+            if not found
+              found = true unless $filter('lowercase')(item[property])
+              .indexOf($filter('lowercase')($scope.query)) is -1
+            found
+          found
         )
-
         #sort the items before they go for pagination
+        sortDir = if $scope.sortProperty is "asc" then true else false
         $scope.filteredItems = $filter('orderBy')($scope.filteredItems
         , (item) ->
-          item.name
-        , false )
+          item[$scope.sortProperty]
+        , sortDir )
+
+        if options.customSort
+          $scope.filteredItems = $scope.sort {items: $scope.filteredItems}
 
         $scope.currentPage = 0
         # now group by pages
@@ -113,17 +139,21 @@ angular.module('app').directive 'datatable'
         if max < 1
           return []
 
-        end = currentPage + 2 unless max < currentPage + 2
+        end =  if max > currentPage + 1 then currentPage + 2
         start = currentPage - 2
+
         if currentPage < 3
           start = 0
-          end = 4 unless max < 4
+          end = 4 if max > 3
 
         if currentPage > max - 3
           end = max
-          start = max - 4 unless max < 4
-         
-        [start..end]
+          start = (max - 4) if max > 3
+
+        result = []
+        for num in [start..end]
+          result.push num
+        result    
 
       $scope.prevPage = ->
         if $scope.currentPage > 0
@@ -136,5 +166,5 @@ angular.module('app').directive 'datatable'
       $scope.setPage = (n) ->
         $scope.currentPage = n
 
-      $scope.search()
+      $scope.refresh()
 ]
