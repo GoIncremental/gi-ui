@@ -1,18 +1,11 @@
-<div>
-  <input type="hidden" class="modalResult" val="false"></input>
+<div> 
   <div class="modal-header">
     <button type="button" ng-click="hide()" class="close">x</button>
     <h3>{{title}}</h3>
   </div>
   <div class="modal-body">
-    <div class="alert alert-error validationAlert hide">
-      <button type="button" class="close" data-dismiss="alert">×</button>
-      <strong>Oops!</strong> There were some errors validating your input
-    </div>
-    <div ng-transclude></div>
   </div>
   <div class="modal-footer">
-    <button class="btn btn-{{level}}" ng-click="onOk()" >Ok</button>
     <button class="btn" ng-click="hide()" >Cancel</button>
   </div>
 </div>
