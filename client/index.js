@@ -1,35 +1,50 @@
 
+/*global angular
+*/
 
 angular.module('app').directive('modal', [
-  function($timeout) {
+  function() {
     return {
       restrict: 'E',
-      templateUrl: '/views/gint-ui/modal.html',
-      transclude: true,
       scope: {
         title: '@',
-        level: '@',
-        visible: '=ngModel',
-        onOk: '&'
+        visible: '='
       },
-      link: function(scope, elem, attrs) {
-        elem.addClass('modal hide');
-        scope.$watch('visible', function(value) {
-          var showModal;
-          showModal = value ? 'show' : 'hide';
-          return elem.modal(showModal);
-        });
-        return scope.hide = function() {
-          return scope.visible = false;
-        };
-      }
+      transclude: true,
+      templateUrl: '/views/gint-ui/modal.html',
+      controller: [
+        '$scope', '$element', '$transclude', function($scope, $element, $transclude) {
+          return $transclude(function(clone) {
+            var bodyBlock, footerBlock, transcludedBody, transcludedFooter;
+            bodyBlock = $element.find('div.modal-body');
+            transcludedBody = clone.filter('div.body');
+            angular.forEach(transcludedBody, function(e) {
+              return bodyBlock.append(angular.element(e));
+            });
+            footerBlock = $element.find('div.modal-footer');
+            transcludedFooter = clone.filter('div.footer');
+            angular.forEach(transcludedFooter, function(e) {
+              return footerBlock.append(angular.element(e));
+            });
+            $element.addClass('modal hide');
+            $scope.$watch('visible', function(value) {
+              var showModal;
+              showModal = value ? 'show' : 'hide';
+              return $element.modal(showModal);
+            });
+            return $scope.hide = function() {
+              return $scope.visible = false;
+            };
+          });
+        }
+      ]
     };
   }
 ]);
 
 
 angular.module('app').directive('datatable', [
-  '$filter', function($filter) {
+  '$filter', '$timeout', function($filter, $timeout) {
     return {
       restrict: 'E',
       templateUrl: '/views/gint-ui/dataTable.html',
@@ -37,8 +52,15 @@ angular.module('app').directive('datatable', [
       scope: {
         items: '=',
         selectedItems: '=',
+        sortDirection: '=',
+        sortProperty: '=',
+        options: '=',
+        search: '&',
+        sort: '&',
         destroy: '&',
-        view: '&'
+        view: '&',
+        altView: '&',
+        edit: '&'
       },
       compile: function($elem, $attrs, $transcludeFn) {
         $transcludeFn($elem, function(clone) {
@@ -49,7 +71,7 @@ angular.module('app').directive('datatable', [
             return headerBlock.append('<th>' + e.innerText + '</th>');
           });
           bodyBlock = $elem.find('table tbody');
-          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>');
+          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{info: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>');
           body = clone.filter('div.body');
           return angular.forEach(body.children(), function(e) {
             var elem, html, property;
@@ -71,16 +93,27 @@ angular.module('app').directive('datatable', [
           });
         });
         return function($scope) {
-          $scope.$watch('items.length', function() {
-            return $scope.search();
-          });
+          var aPromise;
           $scope.filteredItems = [];
           $scope.groupedItems = [];
           $scope.itemsPerPage = 20;
           $scope.pagedItems = [];
           $scope.currentPage = 0;
-          $scope.things = $scope.items;
           $scope.selectAll = "All";
+          $scope.$watch('items.length', function() {
+            return $scope.refresh();
+          });
+          $scope.$watch('sortProperty', function() {
+            return $scope.refresh();
+          });
+          aPromise = null;
+          $scope.$watch('query', function() {
+            if (aPromise) {
+              $timeout.cancel(aPromise);
+            }
+            aPromise = $timeout($scope.refresh, 500);
+            return aPromise;
+          });
           $scope.toggleSelectAll = function() {
             if ($scope.selectAll === "All") {
               angular.forEach($scope.items, function(item) {
@@ -101,19 +134,40 @@ angular.module('app').directive('datatable', [
               return item.selected;
             });
           };
-          $scope.search = function() {
-            $scope.filteredItems = $filter('filter')($scope.items, function(item) {
+          $scope.refresh = function() {
+            var sortDir;
+            if ($scope.options.customSearch) {
+              $scope.filteredItems = $scope.search({
+                query: $scope.query
+              });
+            } else {
+              $scope.filteredItems = $scope.items;
+            }
+            $scope.filteredItems = $filter('filter')($scope.filteredItems, function(item) {
+              var found;
               if (!$scope.query) {
                 return true;
               }
-              if ($filter('lowercase')(item.name).indexOf($filter('lowercase')($scope.query)) !== -1) {
-                return true;
-              }
-              return false;
+              found = false;
+              angular.forEach($scope.options.searchProperties, function(property) {
+                if (!found) {
+                  if ($filter('lowercase')(item[property]).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                    found = true;
+                  }
+                }
+                return found;
+              });
+              return found;
             });
+            sortDir = $scope.sortProperty === "asc" ? true : false;
             $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-              return item.name;
-            }, false);
+              return item[$scope.sortProperty];
+            }, sortDir);
+            if ($scope.options.customSort) {
+              $scope.filteredItems = $scope.sort({
+                items: $scope.filteredItems
+              });
+            }
             $scope.currentPage = 0;
             return $scope.groupToPages();
           };
@@ -132,17 +186,31 @@ angular.module('app').directive('datatable', [
             }
             return _results;
           };
-          $scope.range = function(start, end) {
-            var num, ret, _i;
-            ret = [];
-            if (!end) {
-              end = start;
+          $scope.range = function(currentPage) {
+            var end, max, num, result, start, _i;
+            max = $scope.pagedItems.length - 1;
+            if (max < 1) {
+              return [];
+            }
+            end = max > currentPage + 1 ? currentPage + 2 : void 0;
+            start = currentPage - 2;
+            if (currentPage < 3) {
               start = 0;
+              if (max > 3) {
+                end = 4;
+              }
             }
+            if (currentPage > max - 3) {
+              end = max;
+              if (max > 3) {
+                start = max - 4;
+              }
+            }
+            result = [];
             for (num = _i = start; start <= end ? _i <= end : _i >= end; num = start <= end ? ++_i : --_i) {
-              ret.push(num);
+              result.push(num);
             }
-            return ret;
+            return result;
           };
           $scope.prevPage = function() {
             if ($scope.currentPage > 0) {
@@ -157,7 +225,7 @@ angular.module('app').directive('datatable', [
           $scope.setPage = function(n) {
             return $scope.currentPage = n;
           };
-          return $scope.search();
+          return $scope.refresh();
         };
       }
     };

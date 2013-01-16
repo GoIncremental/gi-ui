@@ -2,14 +2,14 @@ angular.module('app').directive 'datatable'
 , [ '$filter', '$timeout'
 , ($filter, $timeout) ->
   restrict: 'E'
-  templateUrl: '/views/gint-ui/data-table.html'
+  templateUrl: '/views/gint-ui/dataTable.html'
   transclude: true
   scope:
     items: '='
     selectedItems: '='
     sortDirection: '='
     sortProperty: '='
-    options: '&'
+    options: '='
     search: '&'
     sort: '&'
     destroy: '&'
@@ -56,7 +56,6 @@ angular.module('app').directive 'datatable'
       $scope.pagedItems = []
       $scope.currentPage = 0
       $scope.selectAll = "All"  
-      options = $scope.options() 
 
       $scope.$watch 'items.length', () ->
         $scope.refresh()
@@ -91,7 +90,7 @@ angular.module('app').directive 'datatable'
 
       $scope.refresh = ->
         #allow the parent controller the opportunity to pre-filter
-        if options.customSearch
+        if $scope.options.customSearch
           $scope.filteredItems = $scope.search {query: $scope.query}
         else
           $scope.filteredItems = $scope.items
@@ -102,7 +101,7 @@ angular.module('app').directive 'datatable'
             return true
           
           found = false
-          angular.forEach options.searchProperties, (property) ->
+          angular.forEach $scope.options.searchProperties, (property) ->
             if not found
               found = true unless $filter('lowercase')(item[property])
               .indexOf($filter('lowercase')($scope.query)) is -1
@@ -116,7 +115,7 @@ angular.module('app').directive 'datatable'
           item[$scope.sortProperty]
         , sortDir )
 
-        if options.customSort
+        if $scope.options.customSort
           $scope.filteredItems = $scope.sort {items: $scope.filteredItems}
 
         $scope.currentPage = 0
