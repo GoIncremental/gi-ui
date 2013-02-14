@@ -72,7 +72,7 @@ module.exports = function (grunt) {
           return contents;
         },
         optimize: 'none',
-        out: './client/index.js',
+        out: './client/gint-ui.js',
         preserveLicenseComments: false,
         skipModuleInsertion: true,
         uglify: {

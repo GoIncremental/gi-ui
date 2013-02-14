@@ -52,8 +52,6 @@ angular.module('app').directive('datatable', [
       scope: {
         items: '=',
         selectedItems: '=',
-        sortDirection: '=',
-        sortProperty: '=',
         options: '=',
         search: '&',
         sort: '&',
@@ -68,7 +66,7 @@ angular.module('app').directive('datatable', [
           headerBlock = $elem.find('table thead tr');
           header = clone.filter('div.header');
           angular.forEach(header.children(), function(e) {
-            return headerBlock.append('<th>' + e.innerText + '</th>');
+            return headerBlock.append('<th>' + angular.element(e).text() + '</th>');
           });
           bodyBlock = $elem.find('table tbody');
           bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{info: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>');
@@ -84,11 +82,11 @@ angular.module('app').directive('datatable', [
               property = elem.attr('gi-property');
               return bodyBlock.children().append('<td><a ng-href="mailto:{{item.' + property + '}}"">{{item.' + property + '}}</a></td>');
             } else if (elem.hasClass('property')) {
-              return bodyBlock.children().append('<td>{{item.' + e.innerText + '}}</td>');
+              return bodyBlock.children().append('<td>{{item.' + elem.text() + '}}</td>');
             } else if (elem.hasClass('literal')) {
               return bodyBlock.children().append('<td>' + e.innerHTML + '</td>');
             } else if (elem.hasClass('expression')) {
-              return bodyBlock.children().append('<td>{{' + e.innerText + '}}</td>');
+              return bodyBlock.children().append('<td>{{' + elem.text() + '}}</td>');
             }
           });
         });
@@ -100,11 +98,22 @@ angular.module('app').directive('datatable', [
           $scope.pagedItems = [];
           $scope.currentPage = 0;
           $scope.selectAll = "All";
+          $scope.$watch('items', function() {
+            return $scope.refresh();
+          });
           $scope.$watch('items.length', function() {
             return $scope.refresh();
           });
           $scope.$watch('sortProperty', function() {
             return $scope.refresh();
+          });
+          $scope.options.refreshRequired = false;
+          $scope.$watch('options.refreshRequired', function(newVal) {
+            if (newVal) {
+              return $scope.refresh();
+            } else {
+              return $scope.options.refreshRequired = false;
+            }
           });
           aPromise = null;
           $scope.$watch('query', function() {
@@ -141,35 +150,37 @@ angular.module('app').directive('datatable', [
                 query: $scope.query
               });
             } else {
-              $scope.filteredItems = $scope.items;
-            }
-            $scope.filteredItems = $filter('filter')($scope.filteredItems, function(item) {
-              var found;
-              if (!$scope.query) {
-                return true;
-              }
-              found = false;
-              angular.forEach($scope.options.searchProperties, function(property) {
-                if (!found) {
-                  if ($filter('lowercase')(item[property]).indexOf($filter('lowercase')($scope.query)) !== -1) {
-                    found = true;
-                  }
+              $scope.filteredItems = $filter('filter')($scope.items, function(item) {
+                var found;
+                if (!$scope.query) {
+                  return true;
                 }
+                found = false;
+                angular.forEach($scope.options.searchProperties, function(property) {
+                  if (!found) {
+                    if ($filter('lowercase')(item[property]).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                      found = true;
+                    }
+                  }
+                  return found;
+                });
                 return found;
               });
-              return found;
-            });
-            sortDir = $scope.sortProperty === "asc" ? true : false;
-            $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-              return item[$scope.sortProperty];
-            }, sortDir);
+            }
+            if ($scope.options.sortProperty) {
+              sortDir = $scope.options.sortDirection === "asc" ? true : false;
+              $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
+                return item[$scope.options.sortProperty];
+              }, sortDir);
+            }
             if ($scope.options.customSort) {
               $scope.filteredItems = $scope.sort({
                 items: $scope.filteredItems
               });
             }
             $scope.currentPage = 0;
-            return $scope.groupToPages();
+            $scope.groupToPages();
+            $scope.options.refreshRequired = false;
           };
           $scope.groupToPages = function() {
             var i, thing, _i, _len, _ref, _results;
