@@ -110,7 +110,7 @@ angular.module('app').directive 'datatable'
             found = false
             angular.forEach $scope.options.searchProperties, (property) ->
               if not found
-                found = true unless $filter('lowercase')(item[property])
+                found = true unless $filter('lowercase')(item[property].toString())
                 .indexOf($filter('lowercase')($scope.query)) is -1
               found
             found

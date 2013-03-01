@@ -158,7 +158,7 @@ angular.module('app').directive('datatable', [
                 found = false;
                 angular.forEach($scope.options.searchProperties, function(property) {
                   if (!found) {
-                    if ($filter('lowercase')(item[property]).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                    if ($filter('lowercase')(item[property].toString()).indexOf($filter('lowercase')($scope.query)) !== -1) {
                       found = true;
                     }
                   }
