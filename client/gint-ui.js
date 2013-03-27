@@ -243,4 +243,16 @@ angular.module('app').directive('datatable', [
   }
 ]);
 
+
+angular.module('app').directive('tagging', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '/views/gint-ui/tagging.html',
+    scope: {
+      options: '=',
+      selection: '='
+    }
+  };
+});
+
 ;
