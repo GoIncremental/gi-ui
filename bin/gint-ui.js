@@ -11,7 +11,7 @@ angular.module('app').directive('modal', [
         visible: '='
       },
       transclude: true,
-      templateUrl: '/views/gint-ui/modal.html',
+      templateUrl: '/views/modal.html',
       controller: [
         '$scope', '$element', '$transclude', function($scope, $element, $transclude) {
           return $transclude(function(clone) {
@@ -47,7 +47,7 @@ angular.module('app').directive('datatable', [
   '$filter', '$timeout', function($filter, $timeout) {
     return {
       restrict: 'E',
-      templateUrl: '/views/gint-ui/dataTable.html',
+      templateUrl: '/views/dataTable.html',
       transclude: true,
       scope: {
         items: '=',
@@ -247,7 +247,7 @@ angular.module('app').directive('datatable', [
 angular.module('app').directive('tagging', function() {
   return {
     restrict: 'E',
-    templateUrl: '/views/gint-ui/tagging.html',
+    templateUrl: '/views/tagging.html',
     scope: {
       options: '=',
       selection: '='
@@ -255,4 +255,9 @@ angular.module('app').directive('tagging', function() {
   };
 });
 
+angular.module('app').run(['$templateCache', function ($templateCache) {
+	$templateCache.put('/views/dataTable.html', '<div class="row-fluid" ng-class="{hidden: options.disableSearch}"> <div class="span12"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row-fluid"> <div class="span12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="6"> <div class="pagination pull-right"> <ul> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
+	$templateCache.put('/views/modal.html', '<div> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn pull-right" ng-click="hide()">Cancel</button> </div> </div>');
+	$templateCache.put('/views/tagging.html', '<input type="text" ui-select2="options" ng-model="selection" style="width:300px;"/>');
+}]);
 ;

@@ -2,7 +2,7 @@ angular.module('app').directive 'datatable'
 , [ '$filter', '$timeout'
 , ($filter, $timeout) ->
   restrict: 'E'
-  templateUrl: '/views/gint-ui/dataTable.html'
+  templateUrl: '/views/dataTable.html'
   transclude: true
   scope:
     items: '='

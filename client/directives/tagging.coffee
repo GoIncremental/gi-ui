@@ -1,6 +1,6 @@
 angular.module('app').directive 'tagging', ->
   restrict: 'E'
-  templateUrl: '/views/gint-ui/tagging.html'
+  templateUrl: '/views/tagging.html'
   scope:
     options: '='
     selection: '='

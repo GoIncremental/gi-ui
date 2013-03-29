@@ -6,7 +6,7 @@ angular.module('app').directive 'modal'
     title: '@'
     visible: '='
   transclude: true
-  templateUrl: '/views/gint-ui/modal.html' 
+  templateUrl: '/views/modal.html' 
   controller: ['$scope', '$element', '$transclude', ($scope, $element, $transclude) ->
     $transclude (clone) ->
       bodyBlock = $element.find('div.modal-body')

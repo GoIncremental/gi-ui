@@ -8,8 +8,10 @@ module.exports = (grunt) ->
         src: ['bin']
       temp:
         src: ['temp']
+      bin:
+        src: ['bin/client']
 
-    coffeeLint: 
+    coffeeLint:
       scripts:
         files: [
           {
@@ -25,7 +27,7 @@ module.exports = (grunt) ->
           indentation:
             value: 2
             level: 'error'
-          no_plusplus: 
+          no_plusplus:
             level: 'error'
       tests:
         files: [
@@ -38,7 +40,7 @@ module.exports = (grunt) ->
           indentation:
             value: 2
             level: 'error'
-          no_plusplus: 
+          no_plusplus:
             level: 'error'
     coffee:
       scripts:
@@ -57,9 +59,11 @@ module.exports = (grunt) ->
         options:
           trim: './client'
     copy:
-      views:
-        src: 'temp/client/js/views.js'
-        dest: 'bin/views.js'
+      dev:
+        expand: true
+        cwd: 'temp/'
+        src: ['**']
+        dest: 'bin'
 
     requirejs:
       scripts:
@@ -78,7 +82,7 @@ module.exports = (grunt) ->
 
             return contents
           optimize: 'none'
-          out: 'bin/gint-security.js'
+          out: 'bin/gint-ui.js'
           preserveLicenseComments: false
           skipModuleInsertion: true
           uglify:
@@ -115,9 +119,13 @@ module.exports = (grunt) ->
           globals: ['should']
           timeout: 3000
           ignoreLeaks: false
-          reporter: 'dot'   
+          reporter: 'dot'
 
     karma:
+      singleUnit:
+        configFile: 'test/karma.conf.js'
+        reporters: ['dots', 'growl']
+        singleRun: true        
       unit:
         configFile: 'test/karma.conf.js'
         reporters: ['dots', 'growl']
@@ -125,6 +133,11 @@ module.exports = (grunt) ->
         configFile: 'test/karma.conf.js'
         singleRun: true
         browsers: [ 'PhantomJS' ]
+      coverage:
+        configFile: 'test/karmaCoverage.conf.js'
+        singleRun: true
+        browsers: [ 'Chrome' ]
+        reporters: ['dots', 'coverage']
 
   grunt.loadNpmTasks 'grunt-gint'
   grunt.loadNpmTasks 'grunt-contrib-clean'
@@ -136,13 +149,20 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-karma'
 
   grunt.registerTask 'build'
-  , ['clean', 'coffeeLint', 'coffee', 'ngTemplateCache','requirejs', 'copy', 'clean:temp']
+  , ['clean', 'coffeeLint', 'coffee', 'ngTemplateCache'
+  ,'requirejs', 'copy', 'clean:temp']
 
   grunt.registerTask 'default'
-  , ['build', 'mocha:unit', 'karma:unit:run']
+  , ['build', 'mocha:unit', 'clean:bin']
 
   grunt.registerTask 'travis'
   , ['build', 'mocha:travis', 'karma:travis' ]
 
+  grunt.registerTask 'coverage'
+  , ['build', 'karma:coverage', 'clean:bin']
+
+  grunt.registerTask 'ciserver'
+  , ['build', 'karma:unit']
+
   grunt.registerTask 'run'
-  , [ 'default', 'watch']
+  , [ 'build', 'watch']
