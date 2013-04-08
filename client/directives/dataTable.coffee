@@ -134,14 +134,15 @@ angular.module('app').directive 'datatable'
 
       # calculate page in place
       $scope.groupToPages = ->
-        $scope.pagedItems = []
-        for thing, i in $scope.filteredItems
-          if (i % $scope.itemsPerPage == 0)
-            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] =
-              [ $scope.filteredItems[i] ]
-          else
-            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
-            .push($scope.filteredItems[i])
+        if $scope.filteredItems?
+          $scope.pagedItems = []
+          for thing, i in $scope.filteredItems
+            if (i % $scope.itemsPerPage == 0)
+              $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] =
+                [ $scope.filteredItems[i] ]
+            else
+              $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
+              .push($scope.filteredItems[i])
 
       $scope.range = (currentPage) ->
         max = $scope.pagedItems.length - 1

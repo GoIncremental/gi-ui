@@ -1,7 +1,7 @@
 require [
   'directives/modal'
   'directives/dataTable'
-  'directives/tagging'
+  'directives/select2'
   'views'
 ], () ->
   console.log 'Angular-UI loaded'

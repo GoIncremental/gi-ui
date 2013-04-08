@@ -1,5 +1,5 @@
 {
   "name": "gint-ui",
   "version": "0.0.4",
-  "main": "./client/gint-ui.js"
+  "main": "./bin/gint-ui.js"
 }

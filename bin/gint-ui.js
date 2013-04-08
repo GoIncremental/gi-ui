@@ -184,18 +184,20 @@ angular.module('app').directive('datatable', [
           };
           $scope.groupToPages = function() {
             var i, thing, _i, _len, _ref, _results;
-            $scope.pagedItems = [];
-            _ref = $scope.filteredItems;
-            _results = [];
-            for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-              thing = _ref[i];
-              if (i % $scope.itemsPerPage === 0) {
-                _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]]);
-              } else {
-                _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]));
+            if ($scope.filteredItems != null) {
+              $scope.pagedItems = [];
+              _ref = $scope.filteredItems;
+              _results = [];
+              for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+                thing = _ref[i];
+                if (i % $scope.itemsPerPage === 0) {
+                  _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]]);
+                } else {
+                  _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]));
+                }
               }
+              return _results;
             }
-            return _results;
           };
           $scope.range = function(currentPage) {
             var end, max, num, result, start, _i;
@@ -244,20 +246,125 @@ angular.module('app').directive('datatable', [
 ]);
 
 
-angular.module('app').directive('tagging', function() {
-  return {
-    restrict: 'E',
-    templateUrl: '/views/tagging.html',
-    scope: {
-      options: '=',
-      selection: '='
-    }
-  };
-});
+angular.module('app').directive('select2', [
+  '$timeout', function($timeout) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/select2.html',
+      scope: {
+        selection: '=',
+        options: '='
+      },
+      link: function(scope, elm, attrs, controller) {
+        var createSearchChoice, escapeMarkup, markMatch, opts, textField;
+        escapeMarkup = function(markup) {
+          var replace_map;
+          replace_map = {
+            '\\': '&#92;',
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&apos;',
+            "/": '&#47;'
+          };
+          return String(markup).replace(/[&<>"'/\\]/g, function(match) {
+            return replace_map[match[0]];
+          });
+        };
+        markMatch = function(text, term, markup, escapeMarkup) {
+          var match, tl;
+          match = text.toUpperCase().indexOf(term.toUpperCase());
+          tl = term.length;
+          if (match < 0) {
+            markup.push(escapeMarkup(text));
+            return;
+          }
+          markup.push(escapeMarkup(text.substring(0, match)));
+          markup.push("<span class='select2-match'>");
+          markup.push(escapeMarkup(text.substring(match, match + tl)));
+          markup.push("</span>");
+          return markup.push(escapeMarkup(text.substring(match + tl, text.length)));
+        };
+        if (attrs.field != null) {
+          textField = attrs.field;
+        } else {
+          textField = 'name';
+        }
+        opts = {
+          multiple: attrs.tags != null,
+          data: {
+            results: scope.options,
+            text: textField
+          },
+          width: 'copy',
+          formatResult: function(result, container, query) {
+            var markup;
+            markup = [];
+            markMatch(result[textField], query.term, markup, escapeMarkup);
+            return markup.join("");
+          },
+          formatSelection: function(data, container) {
+            return data[textField];
+          },
+          matcher: function(term, text, option) {
+            return option[textField].toUpperCase().indexOf(term.toUpperCase()) >= 0;
+          }
+        };
+        createSearchChoice = function(term, data) {
+          var matchedItems, result;
+          matchedItems = $(data).filter(function() {
+            return this[textField].localeCompare(term) === 0;
+          });
+          if (matchedItems.length === 0) {
+            result = {
+              id: term
+            };
+            result[textField] = term;
+            return result;
+          } else {
+            return {};
+          }
+        };
+        if (attrs.custom != null) {
+          opts.createSearchChoice = createSearchChoice;
+        }
+        attrs.$observe('disabled', function(value) {
+          if (value) {
+            return elm.select2('disable');
+          } else {
+            return elm.select2('enable');
+          }
+        });
+        elm.bind("change", function() {
+          return scope.$apply(function() {
+            return scope.selection = elm.select2('data');
+          });
+        });
+        scope.$watch('selection', function(newVal, oldVal) {
+          return elm.select2('data', newVal);
+        });
+        scope.$watch('options', function(newVal) {
+          if (newVal) {
+            if (scope.options) {
+              opts.data.results = scope.options;
+              return $timeout(function() {
+                return elm.select2(opts);
+              });
+            }
+          }
+        });
+        return $timeout(function() {
+          return elm.select2(opts);
+        });
+      }
+    };
+  }
+]);
 
 angular.module('app').run(['$templateCache', function ($templateCache) {
 	$templateCache.put('/views/dataTable.html', '<div class="row-fluid" ng-class="{hidden: options.disableSearch}"> <div class="span12"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row-fluid"> <div class="span12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="6"> <div class="pagination pull-right"> <ul> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
 	$templateCache.put('/views/modal.html', '<div> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn pull-right" ng-click="hide()">Cancel</button> </div> </div>');
-	$templateCache.put('/views/tagging.html', '<input type="text" ui-select2="options" ng-model="selection" style="width:300px;"/>');
+	$templateCache.put('/views/select2.html', '<input type="text"/>');
 }]);
 ;
