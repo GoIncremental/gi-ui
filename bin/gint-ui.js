@@ -69,7 +69,7 @@ angular.module('app').directive('datatable', [
             return headerBlock.append('<th>' + angular.element(e).text() + '</th>');
           });
           bodyBlock = $elem.find('table tbody');
-          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{info: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>');
+          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ' + 'ng-class="{info: item.selected}"><td><input type="checkbox" ' + 'ng-model="item.selected" ng-click="select()"></td></tr>');
           body = clone.filter('div.body');
           return angular.forEach(body.children(), function(e) {
             var elem, html, property;
@@ -87,6 +87,8 @@ angular.module('app').directive('datatable', [
               return bodyBlock.children().append('<td>' + e.innerHTML + '</td>');
             } else if (elem.hasClass('expression')) {
               return bodyBlock.children().append('<td>{{' + elem.text() + '}}</td>');
+            } else if (elem.hasClass('filter')) {
+              return bodyBlock.children().append('<td>{{ item | ' + elem.text() + '}}</td>');
             }
           });
         });
@@ -164,11 +166,23 @@ angular.module('app').directive('datatable', [
                   }
                   return found;
                 });
+                angular.forEach($scope.options.searchFilters, function(property) {
+                  if (!found) {
+                    if ($filter('lowercase')($filter(property)(item)).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                      found = true;
+                    }
+                  }
+                  return found;
+                });
                 return found;
               });
             }
             if ($scope.options.sortProperty) {
-              sortDir = $scope.options.sortDirection === "asc" ? true : false;
+              if ($scope.options.sortDirection === "asc") {
+                sortDir = false;
+              } else {
+                sortDir = true;
+              }
               $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
                 return item[$scope.options.sortProperty];
               }, sortDir);

@@ -23,7 +23,9 @@ angular.module('app').directive 'datatable'
         headerBlock.append '<th>' + angular.element(e).text() + '</th>'
 
       bodyBlock = $elem.find('table tbody')
-      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ng-class="{info: item.selected}"><td><input type="checkbox" ng-model="item.selected" ng-click="select()"></td></tr>'
+      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ' +
+      'ng-class="{info: item.selected}"><td><input type="checkbox" ' +
+      'ng-model="item.selected" ng-click="select()"></td></tr>'
 
       body = clone.filter('div.body')
 
@@ -36,16 +38,19 @@ angular.module('app').directive 'datatable'
           bodyBlock.children().append '<td>' + html[0].outerHTML + '</td>'
         else if elem.hasClass('property-mailto')
           property = elem.attr('gi-property')
-          bodyBlock.children().append '<td><a ng-href="mailto:{{item.' + property + '}}"">{{item.' + property + '}}</a></td>'
+          bodyBlock.children().append '<td><a ng-href="mailto:{{item.' +
+          property + '}}"">{{item.' + property + '}}</a></td>'
         else if elem.hasClass('property')
           bodyBlock.children().append '<td>{{item.' + elem.text() + '}}</td>'
         else if elem.hasClass('literal')
-          bodyBlock.children().append '<td>' + e.innerHTML + '</td>' 
+          bodyBlock.children().append '<td>' + e.innerHTML + '</td>'
         else if elem.hasClass('expression')
           bodyBlock.children().append '<td>{{' + elem.text() + '}}</td>'
+        else if elem.hasClass('filter')
+          bodyBlock.children().append '<td>{{ item | ' + elem.text() + '}}</td>'
 
     #the compile function should return the link function
-    #so we'll go ahead and define it here as the last step of compile  
+    #so we'll go ahead and define it here as the last step of compile
     ($scope) ->
 
       $scope.filteredItems = []
@@ -53,7 +58,7 @@ angular.module('app').directive 'datatable'
       $scope.itemsPerPage = 20
       $scope.pagedItems = []
       $scope.currentPage = 0
-      $scope.selectAll = "All"  
+      $scope.selectAll = "All"
 
       $scope.$watch 'items', () ->
         $scope.refresh()
@@ -83,7 +88,7 @@ angular.module('app').directive 'datatable'
       $scope.toggleSelectAll = ->
         if $scope.selectAll is "All"
           angular.forEach $scope.items, (item) ->
-            item.selected = true     
+            item.selected = true
           $scope.selectedItems = $scope.items
           $scope.selectAll = "None"
         else
@@ -101,7 +106,6 @@ angular.module('app').directive 'datatable'
         if $scope.options.customSearch
           $scope.filteredItems = $scope.search {query: $scope.query}
         else
-          #check if we're searching for a day string or if the query is in the title
           $scope.filteredItems = $filter('filter')($scope.items , (item) ->
             #we're not searching for anything - so return true
             if not $scope.query
@@ -110,14 +114,27 @@ angular.module('app').directive 'datatable'
             found = false
             angular.forEach $scope.options.searchProperties, (property) ->
               if not found
-                found = true unless $filter('lowercase')(item[property].toString())
+                found = true unless $filter('lowercase')(
+                  item[property].toString()
+                )
+                .indexOf($filter('lowercase')($scope.query)) is -1
+              found
+            angular.forEach $scope.options.searchFilters, (property) ->
+              if not found
+                found = true unless $filter('lowercase')(
+                  $filter(property)(item)
+                )
                 .indexOf($filter('lowercase')($scope.query)) is -1
               found
             found
           )
         #sort the items before they go for pagination
         if $scope.options.sortProperty
-          sortDir = if $scope.options.sortDirection is "asc" then true else false
+          if $scope.options.sortDirection is "asc"
+            sortDir = false
+          else
+            sortDir = true
+
           $scope.filteredItems = $filter('orderBy')($scope.filteredItems
           , (item) ->
             item[$scope.options.sortProperty]
@@ -163,7 +180,7 @@ angular.module('app').directive 'datatable'
         result = []
         for num in [start..end]
           result.push num
-        result    
+        result
 
       $scope.prevPage = ->
         if $scope.currentPage > 0

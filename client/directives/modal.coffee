@@ -6,8 +6,9 @@ angular.module('app').directive 'modal'
     title: '@'
     visible: '='
   transclude: true
-  templateUrl: '/views/modal.html' 
-  controller: ['$scope', '$element', '$transclude', ($scope, $element, $transclude) ->
+  templateUrl: '/views/modal.html'
+  controller: ['$scope', '$element', '$transclude'
+  , ($scope, $element, $transclude) ->
     $transclude (clone) ->
       bodyBlock = $element.find('div.modal-body')
       transcludedBody = clone.filter('div.body')
@@ -19,7 +20,8 @@ angular.module('app').directive 'modal'
       angular.forEach transcludedFooter, (e) ->
         footerBlock.append(angular.element(e))
        
-      #Having done our DOM manipulation, setup watches and scope variables / methods
+      # Having done our DOM manipulation
+      # setup watches and scope variables / methods
       $element.addClass 'modal hide'
       
       $scope.$watch 'visible', (value) ->
