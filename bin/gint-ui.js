@@ -267,7 +267,8 @@ angular.module('app').directive('select2', [
       templateUrl: '/views/select2.html',
       scope: {
         selection: '=',
-        options: '='
+        options: '=',
+        debut: '='
       },
       link: function(scope, elm, attrs, controller) {
         var createSearchChoice, escapeMarkup, markMatch, opts, textField;
@@ -351,14 +352,35 @@ angular.module('app').directive('select2', [
           }
         });
         elm.bind("change", function() {
+          if (attrs.debug != null) {
+            console.log('in elem change 1');
+          }
           return scope.$apply(function() {
+            if (attrs.debug != null) {
+              console.log('in elem change 2');
+            }
             return scope.selection = elm.select2('data');
           });
         });
+        if (attrs.debug != null) {
+          console.log('select2 link');
+        }
         scope.$watch('selection', function(newVal, oldVal) {
+          if (attrs.debug != null) {
+            console.log('selection watch hit');
+            console.log('new:');
+            console.log(newVal);
+            console.log('old:');
+            console.log(oldVal);
+          }
           return elm.select2('data', newVal);
         });
         scope.$watch('options', function(newVal) {
+          if (attrs.debug != null) {
+            console.log('options watch hit');
+            console.log('new:');
+            console.log(newVal);
+          }
           if (newVal) {
             if (scope.options) {
               opts.data.results = scope.options;

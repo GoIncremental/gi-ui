@@ -76,15 +76,33 @@ angular.module('app').directive 'select2'
       else
         elm.select2 'enable'
 
+
     elm.bind "change", () ->
+      if attrs.debug?
+        console.log 'in elem change 1'
       scope.$apply () ->
+        if attrs.debug?
+          console.log 'in elem change 2'
         scope.selection = elm.select2('data')
+    if attrs.debug?
+      console.log 'select2 link'
 
     scope.$watch 'selection', (newVal, oldVal) ->
+      if attrs.debug?
+        console.log 'selection watch hit'
+        console.log 'new:'
+        console.log newVal
+        console.log 'old:'
+        console.log oldVal
       elm.select2 'data', newVal
 
 
     scope.$watch 'options', (newVal) ->
+      if attrs.debug?
+        console.log 'options watch hit'
+        console.log 'new:'
+        console.log newVal
+
       if newVal
         if scope.options
           opts.data.results = scope.options
