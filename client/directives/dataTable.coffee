@@ -202,5 +202,12 @@ angular.module('app').directive 'datatable'
         else
          ""
 
+      $scope.numberOfColumns = () ->
+        console.log 'number of columns'
+        if $scope.options.columns?
+          $scope.options.columns + 1
+        else
+          1
+
       $scope.refresh()
 ]
