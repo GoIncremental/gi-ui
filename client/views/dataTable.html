@@ -1,5 +1,10 @@
-<div class="row-fluid" ng-class="{hidden: options.disableSearch}">
-  <div class="span12">
+<div class="row-fluid" >
+  <div class="span6" >
+    <div ng-show="options.displayCounts">
+      {{ displayCountMessage() }}
+    </div>
+  </div>
+  <div class="span6" ng-hide="options.disableSearch">
     <input class="search-query pull-right" placeholder="Search" ng-model="query">
   </div>
 </div>

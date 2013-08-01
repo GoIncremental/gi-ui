@@ -193,5 +193,14 @@ angular.module('app').directive 'datatable'
       $scope.setPage = (n) ->
         $scope.currentPage = n
 
+      $scope.displayCountMessage = () ->
+        if $scope.currentPage? and $scope.items? and $scope.pagedItems?
+          start = $scope.currentPage * $scope.itemsPerPage + 1
+          end = $scope.currentPage * $scope.itemsPerPage + $scope.pagedItems[$scope.currentPage]?.length
+          total = $scope.items.length
+          "Showing " + start + " to " +  end + " of " + total
+        else
+         ""
+
       $scope.refresh()
 ]
