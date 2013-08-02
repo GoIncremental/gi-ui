@@ -66,7 +66,7 @@ angular.module('app').directive('datatable', [
           headerBlock = $elem.find('table thead tr');
           header = clone.filter('div.header');
           angular.forEach(header.children(), function(e) {
-            return headerBlock.append('<th>' + angular.element(e).text() + '</th>');
+            return headerBlock.append('<th ng-click="sort(\'' + angular.element(e).text() + '\')">' + angular.element(e).text() + '</th>');
           });
           bodyBlock = $elem.find('table tbody');
           bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ' + 'ng-class="{info: item.selected}"><td><input type="checkbox" ' + 'ng-model="item.selected" ng-click="select()"></td></tr>');
@@ -264,12 +264,14 @@ angular.module('app').directive('datatable', [
             }
           };
           $scope.numberOfColumns = function() {
-            console.log('number of columns');
             if ($scope.options.columns != null) {
               return $scope.options.columns + 1;
             } else {
               return 1;
             }
+          };
+          $scope.sort = function(name) {
+            return console.log('sort clicked on : ' + name);
           };
           return $scope.refresh();
         };

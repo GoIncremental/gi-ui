@@ -20,7 +20,7 @@ angular.module('app').directive 'datatable'
       headerBlock = $elem.find('table thead tr')
       header = clone.filter('div.header')
       angular.forEach header.children(), (e) ->
-        headerBlock.append '<th>' + angular.element(e).text() + '</th>'
+        headerBlock.append '<th ng-click="sort(\'' + angular.element(e).text() + '\')">' + angular.element(e).text() + '</th>'
 
       bodyBlock = $elem.find('table tbody')
       bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ' +
@@ -203,11 +203,12 @@ angular.module('app').directive 'datatable'
          ""
 
       $scope.numberOfColumns = () ->
-        console.log 'number of columns'
         if $scope.options.columns?
           $scope.options.columns + 1
         else
           1
 
+      $scope.sort = (name) ->
+        console.log 'sort clicked on : ' + name
       $scope.refresh()
 ]
