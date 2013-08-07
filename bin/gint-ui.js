@@ -1,6 +1,5 @@
 
-/*global angular
-*/
+/*global angular*/
 
 angular.module('app').directive('modal', [
   function() {
@@ -41,7 +40,6 @@ angular.module('app').directive('modal', [
     };
   }
 ]);
-
 
 angular.module('app').directive('datatable', [
   '$filter', '$timeout', function($filter, $timeout) {
@@ -279,7 +277,6 @@ angular.module('app').directive('datatable', [
     };
   }
 ]);
-
 
 angular.module('app').directive('select2', [
   '$timeout', function($timeout) {
