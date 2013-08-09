@@ -20,7 +20,8 @@ angular.module('app').directive 'datatable'
       headerBlock = $elem.find('table thead tr')
       header = clone.filter('div.header')
       angular.forEach header.children(), (e) ->
-        headerBlock.append '<th ng-click="sort(\'' + angular.element(e).text() + '\')">' + angular.element(e).text() + '</th>'
+        headerBlock.append '<th ng-click="sort(\'' + angular.element(e).text() +
+        '\')">' + angular.element(e).text() + '</th>'
 
       bodyBlock = $elem.find('table tbody')
       bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ' +
@@ -196,7 +197,8 @@ angular.module('app').directive 'datatable'
       $scope.displayCountMessage = () ->
         if $scope.currentPage? and $scope.items? and $scope.pagedItems?
           start = $scope.currentPage * $scope.itemsPerPage + 1
-          end = $scope.currentPage * $scope.itemsPerPage + $scope.pagedItems[$scope.currentPage]?.length
+          end = $scope.currentPage * $scope.itemsPerPage +
+          $scope.pagedItems[$scope.currentPage]?.length
           total = $scope.items.length
           "Showing " + start + " to " +  end + " of " + total
         else
