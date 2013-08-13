@@ -1,6 +1,5 @@
 
-/*global angular
-*/
+/*global angular*/
 
 angular.module('app').directive('modal', [
   function() {
@@ -42,7 +41,6 @@ angular.module('app').directive('modal', [
   }
 ]);
 
-
 angular.module('app').directive('datatable', [
   '$filter', '$timeout', function($filter, $timeout) {
     return {
@@ -69,7 +67,7 @@ angular.module('app').directive('datatable', [
             return headerBlock.append('<th ng-click="sort(\'' + angular.element(e).text() + '\')">' + angular.element(e).text() + '</th>');
           });
           bodyBlock = $elem.find('table tbody');
-          bodyBlock.append('<tr ng-repeat="item in pagedItems[currentPage]" ' + 'ng-class="{info: item.selected}"><td><input type="checkbox" ' + 'ng-model="item.selected" ng-click="select()"></td></tr>');
+          bodyBlock.append('<tr ng-click="selectRow(item)" ng-repeat="item in pagedItems[currentPage]" ' + 'ng-class="{info: item.selected}"><td ng-show="options.selectAll"><input type="checkbox" ' + 'ng-model="item.selected" ng-click="selectAllClick($event, item)"></td></tr>');
           body = clone.filter('div.body');
           return angular.forEach(body.children(), function(e) {
             var elem, html, property;
@@ -93,7 +91,7 @@ angular.module('app').directive('datatable', [
           });
         });
         return function($scope) {
-          var aPromise;
+          var aPromise, selectionChanged;
           $scope.filteredItems = [];
           $scope.groupedItems = [];
           $scope.itemsPerPage = 20;
@@ -140,10 +138,26 @@ angular.module('app').directive('datatable', [
               return $scope.selectAll = "All";
             }
           };
-          $scope.select = function() {
+          selectionChanged = function(item) {
+            if (!$scope.options.multi) {
+              angular.forEach($scope.items, function(other) {
+                if (item._id !== other._id) {
+                  return other.selected = false;
+                }
+              });
+            }
             return $scope.selectedItems = $filter('filter')($scope.items, function(item) {
               return item.selected;
             });
+          };
+          $scope.selectRow = function(item) {
+            console.log(item);
+            item.selected = !item.selected;
+            return selectionChanged(item);
+          };
+          $scope.selectAllClick = function(e, item) {
+            e.stopPropagation();
+            return selectionChanged(item);
           };
           $scope.refresh = function() {
             var sortDir;
@@ -264,8 +278,10 @@ angular.module('app').directive('datatable', [
             }
           };
           $scope.numberOfColumns = function() {
+            var result;
             if ($scope.options.columns != null) {
-              return $scope.options.columns + 1;
+              result = $scope.options.selectAll ? 1 : 0;
+              return result + $scope.options.columns;
             } else {
               return 1;
             }
@@ -279,7 +295,6 @@ angular.module('app').directive('datatable', [
     };
   }
 ]);
-
 
 angular.module('app').directive('select2', [
   '$timeout', function($timeout) {
@@ -419,7 +434,7 @@ angular.module('app').directive('select2', [
 ]);
 
 angular.module('app').run(['$templateCache', function ($templateCache) {
-	$templateCache.put('/views/dataTable.html', '<div class="row-fluid"> <div class="span6"> <div ng-show="options.displayCounts"> {{ displayCountMessage() }} </div> </div> <div class="span6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row-fluid"> <div class="span12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="{{numberOfColumns() }} "> <div class="pagination pull-right"> <ul> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
+	$templateCache.put('/views/dataTable.html', '<div class="row-fluid"> <div class="span6"> <div ng-show="options.displayCounts"> {{ displayCountMessage() }} </div> </div> <div class="span6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row-fluid"> <div class="span12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="{{numberOfColumns() }} "> <div class="pagination pull-right"> <ul> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
 	$templateCache.put('/views/modal.html', '<div> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn pull-right" ng-click="hide()">Cancel</button> </div> </div>');
 	$templateCache.put('/views/select2.html', '<input type="text"/>');
 }]);

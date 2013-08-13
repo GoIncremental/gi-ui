@@ -24,9 +24,9 @@ angular.module('app').directive 'datatable'
         '\')">' + angular.element(e).text() + '</th>'
 
       bodyBlock = $elem.find('table tbody')
-      bodyBlock.append '<tr ng-repeat="item in pagedItems[currentPage]" ' +
-      'ng-class="{info: item.selected}"><td><input type="checkbox" ' +
-      'ng-model="item.selected" ng-click="select()"></td></tr>'
+      bodyBlock.append '<tr ng-click="selectRow(item)" ng-repeat="item in pagedItems[currentPage]" ' +
+      'ng-class="{info: item.selected}"><td ng-show="options.selectAll"><input type="checkbox" ' +
+      'ng-model="item.selected" ng-click="selectAllClick($event, item)"></td></tr>'
 
       body = clone.filter('div.body')
 
@@ -98,9 +98,21 @@ angular.module('app').directive 'datatable'
           $scope.selectedItems = []
           $scope.selectAll = "All"
 
-      $scope.select = ->
+      selectionChanged = (item) ->
+        unless $scope.options.multi
+          angular.forEach $scope.items, (other) ->
+            if item._id isnt other._id
+              other.selected = false
         $scope.selectedItems = $filter('filter')($scope.items, (item) ->
-          item.selected)
+          item.selected)        
+
+      $scope.selectRow = (item) ->
+        item.selected = not item.selected
+        selectionChanged item
+
+      $scope.selectAllClick = (e, item) ->
+        e.stopPropagation()
+        selectionChanged item
 
       $scope.refresh = ->
         #allow the parent controller the opportunity to pre-filter
@@ -206,7 +218,8 @@ angular.module('app').directive 'datatable'
 
       $scope.numberOfColumns = () ->
         if $scope.options.columns?
-          $scope.options.columns + 1
+          result = if $scope.options.selectAll then 1 else 0
+          result + $scope.options.columns
         else
           1
 
