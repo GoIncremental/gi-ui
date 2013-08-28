@@ -151,7 +151,6 @@ angular.module('app').directive('datatable', [
             });
           };
           $scope.selectRow = function(item) {
-            console.log(item);
             item.selected = !item.selected;
             return selectionChanged(item);
           };
