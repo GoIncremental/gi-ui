@@ -22,7 +22,7 @@ angular.module('app').directive 'modal'
        
       # Having done our DOM manipulation
       # setup watches and scope variables / methods
-      $element.addClass 'modal hide'
+      $element.addClass 'modal fade'
       
       $scope.$watch 'visible', (value) ->
         showModal =  if value then 'show' else 'hide'
