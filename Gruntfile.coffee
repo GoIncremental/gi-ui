@@ -46,7 +46,7 @@ module.exports = (grunt) ->
       scripts:
         expand: true
         cwd: 'client'
-        src: ['**/*.coffee']
+        src: ['*.coffee', '**/*.coffee']
         dest: 'temp/client/js/'
         ext: '.js'
         options:
@@ -57,6 +57,7 @@ module.exports = (grunt) ->
         files:
           './temp/client/js/views.js': './client/views/*.html'
         options:
+          module: 'gint.ui'
           trim: './client'
     copy:
       dev:
@@ -150,7 +151,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'build'
   , ['clean', 'coffeeLint', 'coffee', 'ngTemplateCache'
-  ,'requirejs', 'copy', 'clean:temp']
+  ,'requirejs', 'copy', 'clean:temp', 'clean:bin']
 
   grunt.registerTask 'default'
   , ['build']

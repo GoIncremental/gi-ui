@@ -1,4 +1,4 @@
-angular.module('app').directive 'datatable'
+angular.module('gint.ui').directive 'gintDatatable'
 , [ '$filter', '$timeout'
 , ($filter, $timeout) ->
   restrict: 'E'

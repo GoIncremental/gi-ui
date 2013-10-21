@@ -1,5 +1,4 @@
-###global angular ###
-angular.module('app').directive 'modal'
+angular.module('gint.ui').directive 'gintModal'
 , [ () ->
   restrict: 'E'
   scope:

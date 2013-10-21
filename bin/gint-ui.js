@@ -1,7 +1,7 @@
 
-/*global angular*/
+angular.module('gint.ui', []);
 
-angular.module('app').directive('modal', [
+angular.module('gint.ui').directive('gintModal', [
   function() {
     return {
       restrict: 'E',
@@ -41,7 +41,7 @@ angular.module('app').directive('modal', [
   }
 ]);
 
-angular.module('app').directive('datatable', [
+angular.module('gint.ui').directive('gintDatatable', [
   '$filter', '$timeout', function($filter, $timeout) {
     return {
       restrict: 'E',
@@ -295,7 +295,7 @@ angular.module('app').directive('datatable', [
   }
 ]);
 
-angular.module('app').directive('select2', [
+angular.module('gint.ui').directive('gintSelect2', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
@@ -432,7 +432,7 @@ angular.module('app').directive('select2', [
   }
 ]);
 
-angular.module('app').run(['$templateCache', function ($templateCache) {
+angular.module('gint.ui').run(['$templateCache', function ($templateCache) {
 	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ displayCountMessage() }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="{{numberOfColumns() }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
 	$templateCache.put('/views/modal.html', '<div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn pull-right" ng-click="hide()">Cancel</button> </div> </div> </div> ');
 	$templateCache.put('/views/select2.html', '<input type="text"/>');
