@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'gintModal'
+angular.module('gint.ui').directive 'giModal'
 , [ () ->
   restrict: 'E'
   scope:

@@ -1,0 +1,69 @@
+<form>
+	<div class="row-fluid fileupload-buttonbar">
+		<div class="col-md-7">
+			<span class="btn btn-success fileinput-button">
+				<i class="icon-plus icon-white"></i>
+				<span>{{addText}}</span>
+				<input id="fileupload" type="file" name="file" multiple>
+			</span>
+		</div>
+		<!-- The global progress information -->
+        <div class="span5 fileupload-progress fade">
+            <!-- The global progress bar -->
+            <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                <div class="bar" style="width:0%;"></div>
+            </div>
+            <!-- The extended global progress information -->
+            <div class="progress-extended">&nbsp;</div>
+        </div>
+    </div>
+    <!-- The table listing the files available for upload/download -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Primary</th>
+                <th>Exclude From Detail</th>
+                <th>Order</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody class="files">
+            <tr ng-repeat="f in erroredFiles">
+                <td></td>
+                <td>{{f.name}}</td>
+                <td>{{formatFileSize(f.size)}}</td>
+                <td colspan="2"><span class="label label-important error">{{f.errorMessage}}</span></td>     
+            </tr>
+            <tr ng-repeat="f in pendingFiles">
+                <td><image-preview file="f"></image-preview></td>
+                <td>{{f.name}}</td>
+                <td>{{formatFileSize(f.size)}}</td>
+                <td><input type="radio" name="primary" ng-checked="f.primary"></td>
+                <td><input type="checkbox" ng-model="f.exclude"></td>
+                <td><input type="number" class="input-mini" ng-model="f.order"></td>
+                <td><button ng-click="removeFromQueue(f)" class="btn btn-warning">
+                    <i class="icon-trash icon-white"></i>
+                    <span>Cancel</span>
+                </button></td>
+            </tr>
+            <tr ng-repeat="f in uploadedFiles">
+                <td><img ng-src="{{f.thumb}}"></td>
+                <td>{{f.name}}</td>
+                <td>{{formatFileSize(f.size)}}</td>
+                <td><input type="radio" name="primary" ng-checked="f.primary"></td>
+                <td><input type="checkbox" ng-model="f.exclude"></td>
+                <td><input type="number" class="input-mini" ng-model="f.order"></td>
+                <td><button ng-click="removeFromS3(f, $event)" class="btn btn-danger">
+                    <i class="icon-trash icon-white"></i>
+                    <span>Remove</span>
+                </button></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+

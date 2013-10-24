@@ -1,1 +1,1 @@
-angular.module 'gint.ui', []
+angular.module 'gint.ui', ['gint.util']

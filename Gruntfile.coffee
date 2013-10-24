@@ -102,6 +102,12 @@ module.exports = (grunt) ->
         files: ['test/client/**/*.coffee']
         tasks: ['coffeeLint:tests', 'karma:unit:run']
 
+    express:
+      test:
+        options:
+          hostname: '*'
+          server: 'example/server/app.coffee'
+
     mocha:
       unit:
         expand: true
@@ -147,6 +153,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-gint'
+  grunt.loadNpmTasks 'grunt-express'
   grunt.loadNpmTasks 'grunt-karma'
 
   grunt.registerTask 'build'
@@ -167,3 +174,9 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'run'
   , [ 'build', 'watch']
+  
+  grunt.registerTask 'server', [
+    'build'
+    'express'
+    'express-keepalive'
+  ]

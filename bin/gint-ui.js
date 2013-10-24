@@ -1,7 +1,7 @@
 
-angular.module('gint.ui', []);
+angular.module('gint.ui', ['gint.util']);
 
-angular.module('gint.ui').directive('gintModal', [
+angular.module('gint.ui').directive('giModal', [
   function() {
     return {
       restrict: 'E',
@@ -41,7 +41,7 @@ angular.module('gint.ui').directive('gintModal', [
   }
 ]);
 
-angular.module('gint.ui').directive('gintDatatable', [
+angular.module('gint.ui').directive('giDatatable', [
   '$filter', '$timeout', function($filter, $timeout) {
     return {
       restrict: 'E',
@@ -295,7 +295,7 @@ angular.module('gint.ui').directive('gintDatatable', [
   }
 ]);
 
-angular.module('gint.ui').directive('gintSelect2', [
+angular.module('gint.ui').directive('giSelect2', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
@@ -432,8 +432,397 @@ angular.module('gint.ui').directive('gintSelect2', [
   }
 ]);
 
+angular.module('gint.ui').directive('giFileupload', [
+  '$q', 'giFileManager', function($q, FileManager) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/fileUpload.html',
+      scope: {
+        files: '=',
+        parent: '='
+      },
+      link: function(scope, elem, attrs) {
+        var downloadTemplate, extend, getResizedImage, optionsObj, previews, resized, uploadTemplate, uploadToS3;
+        scope.addText = "Add an image";
+        scope.pendingFiles = [];
+        scope.uploadedFiles = [];
+        scope.erroredFiles = [];
+        downloadTemplate = function(o) {};
+        uploadTemplate = function(o) {
+          return scope.$apply(function() {
+            return angular.forEach(o.files, function(file) {
+              if (file.error) {
+                file.errorMessage = locale.fileupload.errors[file.error] || file.error;
+                scope.erroredFiles.push(file);
+              } else {
+                if (file.order == null) {
+                  file.order = 0;
+                }
+                if (!file.exclude) {
+                  file.exclude = true;
+                }
+                if (!file.primary) {
+                  file.primary = true;
+                }
+                console.log(file);
+                file.preview = previews[file.name];
+                scope.pendingFiles.push(file);
+              }
+            });
+          });
+        };
+        scope.formatFileSize = function(bytes) {
+          if (!typeof bytes === 'number') {
+            return 'N/A';
+          } else if (bytes >= 1073741824) {
+            return (bytes / 1073741824).toFixed(2) + ' GB';
+          } else if (bytes >= 1048576) {
+            return (bytes / 1048576).toFixed(2) + ' MB';
+          } else {
+            return (bytes / 1024).toFixed(2) + ' KB';
+          }
+        };
+        getResizedImage = function(data, options) {
+          var callback, deferred, file, img, name, newImg, param, that;
+          deferred = $q.defer();
+          options.canvas = true;
+          img = data.canvas || data.img;
+          if (img) {
+            newImg = loadImage.scale(img, options);
+          }
+          if (newImg == null) {
+            console.log('there is no resized image to get');
+            deferred.resolve();
+          } else {
+            that = this;
+            file = data.files[data.index];
+            name = file.name;
+            callback = function(blob) {
+              if (blob.name == null) {
+                if (file.type === blob.type) {
+                  blob.name = options.prefix + file.name;
+                } else if (file.name != null) {
+                  blob.name = options.prefix + file.name.replace(/\..+$/, '.' + blob.type.substr(6));
+                }
+              }
+              return deferred.resolve(blob);
+            };
+            if (newImg.mozGetAsFile) {
+              if (/^image\/(jpeg|png)$/.test(file.type)) {
+                param = options.prefix + name;
+              } else if (name) {
+                param = options.prefix + name.replace(/\..+$/, '') + '.png';
+              } else {
+                param = options.prefix + 'blob.png';
+              }
+              callback(newImg.mozGetAsFile(param, file.type));
+            } else if (newImg.toBlob) {
+              newImg.toBlob(callback, file.type);
+            } else {
+              console.log('THIS SHOULD NOT HAPPEN');
+              deferred.resolve();
+            }
+          }
+          return deferred.promise;
+        };
+        extend = function(object, properties) {
+          var key, val;
+          for (key in properties) {
+            val = properties[key];
+            object[key] = val;
+          }
+          return object;
+        };
+        optionsObj = {
+          uploadTemplateId: null,
+          downloadTemplateId: null,
+          uploadTemplate: uploadTemplate,
+          downloadTemplate: downloadTemplate,
+          disableImagePreview: true,
+          autoUpload: false,
+          previewMaxWidth: 100,
+          previewMaxHeight: 100,
+          previewCrop: true,
+          dropZone: elem,
+          dataType: 'xml'
+        };
+        elem.fileupload(optionsObj);
+        resized = {};
+        previews = {};
+        elem.bind('fileuploaddone', function(e, data) {
+          return scope.$apply(function() {
+            var name;
+            name = data.files[0].name;
+            if (name.indexOf('thumb') === 0) {
+              console.log('resolving: ' + name);
+              return data.files[0].promise.resolve();
+            } else {
+              scope.removeFromQueue(data.files[0]);
+              console.log(data);
+              return FileManager.save(data.files[0], scope.parent, data.formData).then(function(fileInfo) {
+                console.log('resolving: ' + name);
+                data.files[0].promise.resolve();
+                if (data.files[0].error) {
+                  file.errorMessage = locale.fileupload.errors[file.error] || file.error;
+                  return scope.erroredFiles.push(file);
+                } else {
+                  return scope.uploadedFiles.push(fileInfo);
+                }
+              });
+            }
+          });
+        });
+        elem.bind('fileuploadprocessdone', function(e, data) {
+          return scope.$apply(function() {
+            var name;
+            name = data.files[0].name;
+            data.files[0].s3alternates = [];
+            resized[name] = [];
+            return getResizedImage(data, {
+              maxWidth: 940,
+              maxHeight: 530,
+              prefix: 'thumb/940/'
+            }).then(function(blob) {
+              resized[name].push(blob);
+              data.files[0].s3alternates.push('thumb/940/');
+              return getResizedImage(data, {
+                maxWidth: 940,
+                maxHeight: 300,
+                prefix: 'thumb/300h/'
+              }).then(function(blob) {
+                resized[name].push(blob);
+                data.files[0].s3alternates.push('thumb/300h/');
+                return getResizedImage(data, {
+                  maxWidth: 350,
+                  maxHeight: 200,
+                  prefix: 'thumb/350/'
+                }).then(function(blob) {
+                  resized[name].push(blob);
+                  data.files[0].s3alternates.push('thumb/350/');
+                  return getResizedImage(data, {
+                    maxWidth: 150,
+                    maxHeight: 150,
+                    prefix: 'thumb/'
+                  }).then(function(blob) {
+                    var previewImg;
+                    resized[name].push(blob);
+                    data.files[0].s3alternates.push('thumb/');
+                    previewImg = loadImage.scale(data.img, {
+                      maxWidth: 80,
+                      maxHeight: 80,
+                      canvas: true
+                    });
+                    return previews[name] = previewImg;
+                  });
+                });
+              });
+            });
+          });
+        });
+        scope.removeFromQueue = function(file) {
+          var resultIndex;
+          resultIndex = -1;
+          angular.forEach(scope.pendingFiles, function(f, index) {
+            if (f.name === file.name) {
+              return resultIndex = index;
+            }
+          });
+          if (resultIndex !== -1) {
+            scope.pendingFiles.splice(resultIndex, 1);
+            previews[file.name] = null;
+            return resized[file.name] = null;
+          }
+        };
+        scope.removeFromS3 = function(file, $event) {
+          $event.preventDefault();
+          console.log('remove from S3 called for:' + file.name);
+          return FileManager.destroy(file._id).then(function() {
+            var resultIndex;
+            resultIndex = -1;
+            angular.forEach(scope.uploadedFiles, function(f, index) {
+              if (f._id === file._id) {
+                return resultIndex = index;
+              }
+            });
+            if (resultIndex !== -1) {
+              return scope.uploadedFiles.splice(resultIndex, 1);
+            }
+          });
+        };
+        uploadToS3 = function(file) {
+          var deferred;
+          console.log('in send test');
+          console.log(file);
+          deferred = $q.defer();
+          FileManager.getUploadToken(file, scope.parent).then(function(token) {
+            var formData, mainFileDeferred, promises;
+            elem.fileupload('option', 'url', token.url);
+            formData = {
+              key: token.path + '/' + file.name,
+              AWSAccesskeyId: token.accessKey,
+              acl: "public-read",
+              policy: token.policy,
+              signature: token.signature,
+              success_action_status: "201",
+              "Content-Type": file.type,
+              primary: file.primary,
+              exclude: file.exclude,
+              order: file.order
+            };
+            elem.fileupload('send', {
+              formData: formData,
+              files: [file]
+            });
+            promises = [];
+            promises.push(file.promise);
+            mainFileDeferred = $q.defer();
+            file.promise = mainFileDeferred;
+            promises.push(mainFileDeferred.promise);
+            angular.forEach(resized[file.name], function(f) {
+              var resizeDeferred;
+              resizeDeferred = $q.defer();
+              f.promise = resizeDeferred;
+              promises.push(resizeDeferred.promise);
+              formData.key = token.path + "/" + f.name;
+              return elem.fileupload('send', {
+                files: [f],
+                formData: formData
+              });
+            });
+            resized[file.name] = null;
+            return $q.all(promises).then(function() {
+              console.log('all promises resolved for ' + file.name);
+              return deferred.resolve();
+            });
+          });
+          return deferred.promise;
+        };
+        scope.$watch('parent', function(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            return FileManager.forParent(scope.parent).then(function(files) {
+              scope.uploadedFiles = [];
+              resized = {};
+              return angular.forEach(files, function(file) {
+                return scope.uploadedFiles.push(file);
+              });
+            });
+          }
+        });
+        scope.$on('start-file-upload', function(e, parent, promise) {
+          var promises;
+          promises = [];
+          angular.forEach(scope.pendingFiles, function(file) {
+            return promises.push(uploadToS3(file));
+          });
+          console.log('waiting on ' + promises.length + ' files to be uploaded to S3');
+          return $q.all(promises).then(function() {
+            console.log('all files uploaded to S3');
+            return promise.resolve();
+          });
+        });
+      }
+    };
+  }
+]);
+
+angular.module('gint.ui').factory('giFileManager', [
+  '$q', '$http', 'giCrud', function($q, $http, Crud) {
+    var crudService, forParent, getCDN, getPath, getToken, save;
+    crudService = Crud.factory('files', true);
+    getPath = function(parent) {
+      var deferred;
+      deferred = $q.defer();
+      getCDN().then(function(cdn) {
+        var path;
+        path = cdn + '/public/images/' + parent.resourceType + '/' + parent.key + '/';
+        return deferred.resolve(path);
+      });
+      return deferred.promise;
+    };
+    forParent = function(parent) {
+      var deferred;
+      deferred = $q.defer();
+      getPath(parent).then(function(path) {
+        return crudService.query({
+          'parentId': parent.key
+        }).then(function(files) {
+          angular.forEach(files, function(file) {
+            file.url = path + file.name;
+            file.thumb = path + 'thumb/' + file.name;
+            return file.del = "/FileManager/" + parent.resourceType + '/' + parent.key;
+          });
+          return deferred.resolve(files);
+        });
+      });
+      return deferred.promise;
+    };
+    getCDN = function() {
+      var deferred;
+      deferred = $q.defer();
+      $http.get('/api/s3token').success(function(data, status, headers, config) {
+        return deferred.resolve(data.cdn);
+      }).error(function(data, status, headers, config) {
+        console.log('something went wrong getting CDN');
+        return deferred.resolve();
+      });
+      return deferred.promise;
+    };
+    save = function(file, parent, formData) {
+      var deferred;
+      deferred = $q.defer();
+      console.log('about to save file with alternates');
+      console.log(file.s3alternates);
+      getPath(parent).then(function(path) {
+        var fileInfo;
+        console.log('bob1');
+        fileInfo = {
+          name: file.name,
+          parentId: parent.key,
+          parentType: parent.resourceType,
+          size: file.size,
+          primary: file.primary,
+          order: file.order,
+          exclude: file.exclude,
+          s3alternates: file.s3alternates
+        };
+        return crudService.save(fileInfo).then(function(result) {
+          console.log('bob2');
+          console.log('file is saved in mongo');
+          result.thumb = path + 'thumb/' + file.name;
+          return deferred.resolve(result);
+        });
+      });
+      return deferred.promise;
+    };
+    getToken = function(file, parent, type) {
+      var data, deferred;
+      deferred = $q.defer();
+      data = {
+        filename: file.name,
+        contentType: file.type,
+        parent: parent
+      };
+      $http.post('/api/s3token', data).success(function(data, status, headers, config) {
+        return deferred.resolve(data);
+      }).error(function(data, status, headers, config) {
+        console.log('something went wrong getting token');
+        return deferred.resolve();
+      });
+      return deferred.promise;
+    };
+    return {
+      all: crudService.all,
+      forParent: forParent,
+      getUploadToken: getToken,
+      save: save,
+      destroy: crudService.destroy
+    };
+  }
+]);
+
 angular.module('gint.ui').run(['$templateCache', function ($templateCache) {
 	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ displayCountMessage() }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="{{numberOfColumns() }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
+	$templateCache.put('/views/fileUpload.html', '<form> <div class="row-fluid fileupload-buttonbar"> <div class="col-md-7"> <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>{{addText}}</span> <input id="fileupload" type="file" name="file" multiple> </span> </div> <div class="span5 fileupload-progress fade"> <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100"> <div class="bar" style="width:0%;"></div> </div> <div class="progress-extended">&nbsp;</div> </div> </div> <table class="table table-striped"> <thead> <tr> <th></th> <th>Name</th> <th>Size</th> <th>Primary</th> <th>Exclude From Detail</th> <th>Order</th> <th></th> <th></th> <th></th> </tr> </thead> <tbody class="files"> <tr ng-repeat="f in erroredFiles"> <td></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td colspan="2"><span class="label label-important error">{{f.errorMessage}}</span></td> </tr> <tr ng-repeat="f in pendingFiles"> <td><image-preview file="f"></image-preview></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromQueue(f)" class="btn btn-warning"> <i class="icon-trash icon-white"></i> <span>Cancel</span> </button></td> </tr> <tr ng-repeat="f in uploadedFiles"> <td><img ng-src="{{f.thumb}}"></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromS3(f, $event)" class="btn btn-danger"> <i class="icon-trash icon-white"></i> <span>Remove</span> </button></td> </tr> </tbody> </table> </form> ');
 	$templateCache.put('/views/modal.html', '<div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn pull-right" ng-click="hide()">Cancel</button> </div> </div> </div> ');
 	$templateCache.put('/views/select2.html', '<input type="text"/>');
 }]);

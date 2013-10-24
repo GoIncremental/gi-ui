@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'gintSelect2'
+angular.module('gint.ui').directive 'giSelect2'
 , [ '$timeout'
 , ($timeout) ->
   restrict: 'E'
