@@ -99,6 +99,7 @@ angular.module('gint.ui').directive 'giDatatable'
           $scope.selectAll = "All"
 
       selectionChanged = (item) ->
+        $scope.$emit 'selectionChanged', item
         unless $scope.options.multi
           angular.forEach $scope.items, (other) ->
             if item._id isnt other._id

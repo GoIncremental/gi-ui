@@ -139,6 +139,7 @@ angular.module('gint.ui').directive('giDatatable', [
             }
           };
           selectionChanged = function(item) {
+            $scope.$emit('selectionChanged', item);
             if (!$scope.options.multi) {
               angular.forEach($scope.items, function(other) {
                 if (item._id !== other._id) {
