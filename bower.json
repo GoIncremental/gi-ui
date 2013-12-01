@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "main": "./bin/gint-ui.js",
   "devDependencies": {
-    "angular": "1.2.0-rc.2",
-    "angular-resource": "1.2.0-rc.2",
-    "gint-util": "git@github.com:Gintellect/gint-util.git#v0.2.0"
+    "angular": "1.2.3",
+    "angular-resource": "1.2.3",
+    "gint-util": "git@github.com:Gintellect/gint-util.git#dal"
   },
   "dependencies": {
     "bootstrap": "~3.0.0"
