@@ -9,26 +9,51 @@ angular.module('gint.ui').directive 'giDt2property'
       return
 ]
 
+angular.module('gint.ui').directive 'giDt2button'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '<button class="btn btn-info" ng-click="click()">' + attrs.text + '</button>'
+    element.append(body)
+
+    #compile returns a linking function
+    (scope, elem, attrs) ->
+      scope.click = () ->
+        scope.$emit attrs.event, scope.item[attrs.arg]
+]
+
 angular.module('gint.ui').directive 'gintuidt2item'
 , [ '$compile'
 , ($compile) ->
 
-  createTdElement = (directive, property) ->
-    angular.element('<table><tr><td ' + directive + '=' + property + ' ></td></tr></table>')
-    .find 'td'
-  
-  createTdLiteral = (property) ->
-    angular.element('<table><tr><td> ' + property + ' </td></tr></table>')
+  createAttrList = (attrsObj) ->
+    res = ""
+    for key, value of attrsObj
+      if value?
+        res += key + '="' + value + '" '
+      else
+        res += key + ' '
+    res
+
+  createTdProperty = (attrsObj) ->
+    angular.element('<table><tr><td ' + createAttrList(attrsObj) + ' ></td></tr></table>')
     .find 'td'
 
   render = (element, scope) ->
     for column in scope.columns
       if column.visible
         html = null
+        attrsObj = {}
         if column.type is 'gi-dt2property'
-          html = $compile(createTdElement(column.type, column.property))(scope)
-        else if column.type is 'gi-dt2literal'
-          html = $compile(createTdLiteral(column.property))(scope)
+          attrsObj[column.type] = column.property
+        else if column.type is 'gi-dt2button'
+          attrsObj[column.type] = null
+          attrsObj.text = column.text
+          attrsObj.event = column.eventName
+          attrsObj.arg = column.property
+        
+        html = $compile(createTdProperty(attrsObj))(scope)
         element.append(html)
 
   restrict: 'A'
