@@ -23,6 +23,19 @@ angular.module('gint.ui').directive 'giDt2button'
         scope.$emit attrs.event, scope.item[attrs.arg]
 ]
 
+angular.module('gint.ui').controller 'gintuidt2itemcontroller'
+, [ '$scope', '$element'
+, ($scope, $element) ->
+    $scope.$watch () ->
+      $scope.columns
+    , (newValue, oldValue) ->
+      if newValue isnt oldValue
+        $slement.children().remove()
+        render($element, $scope)
+        $compile($element.contents())($scope)
+    , true
+]
+
 angular.module('gint.ui').directive 'gintuidt2item'
 , [ '$compile'
 , ($compile) ->
@@ -60,15 +73,7 @@ angular.module('gint.ui').directive 'gintuidt2item'
   scope:
     item: '='
     columns: '='
-  controller: ($scope, $element) ->
-    $scope.$watch () ->
-      $scope.columns
-    , (newValue, oldValue) ->
-      if newValue isnt oldValue
-        $slement.children().remove()
-        render($element, $scope)
-        $compile($element.contents())($scope)
-    , true
+  controller: 'gintuidt2itemcontroller'
   compile: () ->
     (scope, element) ->
       render(element, scope)
