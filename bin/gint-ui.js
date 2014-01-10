@@ -328,6 +328,20 @@ angular.module('gint.ui').directive('giDt2button', [
   }
 ]);
 
+angular.module('gint.ui').directive('giDt2filter', [
+  '$compile', function($compile) {
+    return {
+      restrict: 'A',
+      compile: function(element, attrs) {
+        var body;
+        body = '{{item | ' + attrs.giDt2filter + '}}';
+        element.append(body);
+        return function() {};
+      }
+    };
+  }
+]);
+
 angular.module('gint.ui').controller('gintuidt2itemcontroller', [
   '$scope', '$element', function($scope, $element) {
     return $scope.$watch(function() {
@@ -370,13 +384,18 @@ angular.module('gint.ui').directive('gintuidt2item', [
         if (column.visible) {
           html = null;
           attrsObj = {};
-          if (column.type === 'gi-dt2property') {
-            attrsObj[column.type] = column.property;
-          } else if (column.type === 'gi-dt2button') {
-            attrsObj[column.type] = null;
-            attrsObj.text = column.text;
-            attrsObj.event = column.eventName;
-            attrsObj.arg = column.property;
+          switch (column.type) {
+            case 'gi-dt2property':
+              attrsObj[column.type] = column.property;
+              break;
+            case 'gi-dt2filter':
+              attrsObj[column.type] = column.property;
+              break;
+            case 'gi-dt2button':
+              attrsObj[column.type] = null;
+              attrsObj.text = column.text;
+              attrsObj.event = column.eventName;
+              attrsObj.arg = column.property;
           }
           html = $compile(createTdProperty(attrsObj))(scope);
           _results.push(element.append(html));

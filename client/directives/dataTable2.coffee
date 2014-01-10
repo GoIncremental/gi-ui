@@ -23,6 +23,17 @@ angular.module('gint.ui').directive 'giDt2button'
         scope.$emit attrs.event, scope.item[attrs.arg]
 ]
 
+angular.module('gint.ui').directive 'giDt2filter'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '{{item | ' + attrs.giDt2filter +  '}}'
+    element.append(body)
+    () ->
+      return
+]
+
 angular.module('gint.ui').controller 'gintuidt2itemcontroller'
 , [ '$scope', '$element'
 , ($scope, $element) ->
@@ -58,14 +69,17 @@ angular.module('gint.ui').directive 'gintuidt2item'
       if column.visible
         html = null
         attrsObj = {}
-        if column.type is 'gi-dt2property'
-          attrsObj[column.type] = column.property
-        else if column.type is 'gi-dt2button'
-          attrsObj[column.type] = null
-          attrsObj.text = column.text
-          attrsObj.event = column.eventName
-          attrsObj.arg = column.property
-        
+
+        switch column.type
+          when 'gi-dt2property' then attrsObj[column.type] = column.property
+          when 'gi-dt2filter' then attrsObj[column.type] = column.property
+          when 'gi-dt2button'
+            attrsObj[column.type] = null
+            attrsObj.text = column.text
+            attrsObj.event = column.eventName
+            attrsObj.arg = column.property
+
+          
         html = $compile(createTdProperty(attrsObj))(scope)
         element.append(html)
 
