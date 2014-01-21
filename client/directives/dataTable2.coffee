@@ -34,6 +34,17 @@ angular.module('gint.ui').directive 'giDt2filter'
       return
 ]
 
+angular.module('gint.ui').directive 'giDt2propertyfilter'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '{{item.' + attrs.giDt2propertyfilter +  '}}'
+    element.append(body)
+    () ->
+      return
+]
+
 angular.module('gint.ui').controller 'gintuidt2itemcontroller'
 , [ '$scope', '$element'
 , ($scope, $element) ->
@@ -71,8 +82,8 @@ angular.module('gint.ui').directive 'gintuidt2item'
         attrsObj = {}
 
         switch column.type
-          when 'gi-dt2property' then attrsObj[column.type] = column.property
-          when 'gi-dt2filter' then attrsObj[column.type] = column.property
+          when 'gi-dt2property', 'gi-dt2filter', 'gi-dt2propertyfilter' 
+            attrsObj[column.type] = column.property
           when 'gi-dt2button'
             attrsObj[column.type] = null
             attrsObj.text = column.text
