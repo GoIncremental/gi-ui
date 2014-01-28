@@ -7,14 +7,15 @@ angular.module('gint.ui').directive('giModal', [
       restrict: 'E',
       scope: {
         title: '@',
-        visible: '='
+        visible: '=',
+        cancelClass: '@'
       },
       transclude: true,
       templateUrl: '/views/modal.html',
       controller: [
         '$scope', '$element', '$transclude', function($scope, $element, $transclude) {
           return $transclude(function(clone) {
-            var bodyBlock, footerBlock, headerBlock, transcludedBody, transcludedFooter, transcludedHeader;
+            var bodyBlock, cancelButton, footerBlock, headerBlock, transcludedBody, transcludedFooter, transcludedHeader;
             headerBlock = $element.find('div.modal-header');
             transcludedHeader = clone.filter('div.header');
             angular.forEach(transcludedHeader, function(e) {
@@ -30,7 +31,16 @@ angular.module('gint.ui').directive('giModal', [
             angular.forEach(transcludedFooter, function(e) {
               return footerBlock.append(angular.element(e));
             });
+            if ($scope.cancelClass != null) {
+              cancelButton = $element.find('div.modal-footer button');
+              cancelButton.addClass($scope.cancelClass);
+            }
             $element.addClass('modal fade');
+            $element.modal({
+              show: false,
+              backdrop: 'static',
+              keyboard: false
+            });
             $scope.$watch('visible', function(value) {
               var showModal;
               showModal = value ? 'show' : 'hide';

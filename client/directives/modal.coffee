@@ -4,6 +4,8 @@ angular.module('gint.ui').directive 'giModal'
   scope:
     title: '@'
     visible: '='
+    cancelClass: '@'
+
   transclude: true
   templateUrl: '/views/modal.html'
   controller: ['$scope', '$element', '$transclude'
@@ -23,10 +25,16 @@ angular.module('gint.ui').directive 'giModal'
       transcludedFooter = clone.filter('div.footer')
       angular.forEach transcludedFooter, (e) ->
         footerBlock.append(angular.element(e))
-       
+      
+      if $scope.cancelClass?
+        cancelButton = $element.find('div.modal-footer button')
+        cancelButton.addClass $scope.cancelClass
+
       # Having done our DOM manipulation
       # setup watches and scope variables / methods
       $element.addClass 'modal fade'
+
+      $element.modal { show: false, backdrop: 'static', keyboard: false}
       
       $scope.$watch 'visible', (value) ->
         showModal =  if value then 'show' else 'hide'
