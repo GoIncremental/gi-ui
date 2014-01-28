@@ -52,7 +52,7 @@ angular.module('gint.ui').controller 'gintuidt2itemcontroller'
       $scope.columns
     , (newValue, oldValue) ->
       if newValue isnt oldValue
-        $slement.children().remove()
+        $element.children().remove()
         render($element, $scope)
         $compile($element.contents())($scope)
     , true
@@ -175,17 +175,26 @@ angular.module('gint.ui').directive 'giDatatable2'
           angular.forEach $scope.options.columns, (column) ->
             if not found
               if column.search
-                if column.type is 'gi-dt2property'
+                switch column.type
+                  when 'gi-dt2property'
 
-                  found = true unless $filter('lowercase')(
-                    item[column.property].toString()
-                  )
-                  .indexOf($filter('lowercase')($scope.query)) is -1
-                else if column.type is 'gi-dt2filter'
-                  found = true unless $filter('lowercase')(
-                    $filter(column.property)(item)
-                  )
-                  .indexOf($filter('lowercase')($scope.query)) is -1
+                    found = true unless $filter('lowercase')(
+                      item[column.property].toString()
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
+                  when 'gi-dt2filter'
+                    found = true unless $filter('lowercase')(
+                      $filter(column.property)(item)
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
+                  when 'gi-dt2propertyfilter'
+                    splits = column.property.split('|')
+                    filterName = splits[1].replace(/\s/g, '')
+                    filterProperty = splits[0].replace(/\s/g, '')
+                    found = true unless $filter('lowercase')(
+                      $filter(filterName)(item[filterProperty])
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
           found
         )
       #sort the items before they go for pagination
@@ -234,6 +243,10 @@ angular.module('gint.ui').directive 'giDatatable2'
     $scope.selectRow = (item) ->
       item.selected = not item.selected
       selectionChanged item
+      eventName = 'row-selected'
+      if $scope.options.rowSelectedEvent?
+        eventName = $scope.options.rowSelectedEvent
+      $scope.$emit eventName, item
 
     $scope.selectAllClick = (e, item) ->
       e.stopPropagation()
