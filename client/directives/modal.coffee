@@ -9,6 +9,11 @@ angular.module('gint.ui').directive 'giModal'
   controller: ['$scope', '$element', '$transclude'
   , ($scope, $element, $transclude) ->
     $transclude (clone) ->
+      headerBlock = $element.find('div.modal-header')
+      transcludedHeader = clone.filter('div.header')
+      angular.forEach transcludedHeader, (e) ->
+        headerBlock.append(angular.element(e))
+        
       bodyBlock = $element.find('div.modal-body')
       transcludedBody = clone.filter('div.body')
       angular.forEach transcludedBody, (e) ->
