@@ -177,9 +177,11 @@ angular.module('gint.ui').directive 'giDatatable2'
               if column.search
                 switch column.type
                   when 'gi-dt2property'
-
+                    searchString = ""
+                    if item[column.property]?
+                      searchString = item[column.property].toString()
                     found = true unless $filter('lowercase')(
-                      item[column.property].toString()
+                      searchString
                     )
                     .indexOf($filter('lowercase')($scope.query)) is -1
                   when 'gi-dt2filter'

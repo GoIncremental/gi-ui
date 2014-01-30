@@ -528,12 +528,16 @@ angular.module('gint.ui').directive('giDatatable2', [
               }
               found = false;
               angular.forEach($scope.options.columns, function(column) {
-                var filterName, filterProperty, splits;
+                var filterName, filterProperty, searchString, splits;
                 if (!found) {
                   if (column.search) {
                     switch (column.type) {
                       case 'gi-dt2property':
-                        if ($filter('lowercase')(item[column.property].toString()).indexOf($filter('lowercase')($scope.query)) !== -1) {
+                        searchString = "";
+                        if (item[column.property] != null) {
+                          searchString = item[column.property].toString();
+                        }
+                        if ($filter('lowercase')(searchString).indexOf($filter('lowercase')($scope.query)) !== -1) {
                           return found = true;
                         }
                         break;
