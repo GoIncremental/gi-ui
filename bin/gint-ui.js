@@ -1158,29 +1158,22 @@ angular.module('gint.ui').directive('giMax', [
 
 angular.module('gint.ui').directive('giInteger', [
   function() {
+    var intRegex;
+    intRegex = /^\-?\d+$/;
     return {
       restrict: 'A',
       require: 'ngModel',
       link: function($scope, $elem, $attrs, $ctrl) {
-        var intValidator;
-        intValidator = function(value) {
-          var intRegex;
-          if (value != null) {
-            intRegex = /^-?\d+$/;
-            if (intRegex.test(value)) {
-              $ctrl.$setValidity('giInteger', true);
-              return value;
-            } else {
-              $ctrl.$setValidity('giInteger', false);
-              return void 0;
-            }
+        return $ctrl.$parsers.unshift(function(value) {
+          console.log('testing ' + value);
+          if (intRegex.test(value)) {
+            $ctrl.$setValidity('giInteger', true);
+            return value;
           } else {
             $ctrl.$setValidity('giInteger', false);
             return void 0;
           }
-        };
-        $ctrl.$parsers.push(intValidator);
-        return $ctrl.$formatters.push(intValidator);
+        });
       }
     };
   }
