@@ -7,6 +7,7 @@ require
     'directives/fileUpload': deps: ['index']
     'directives/minValidate': deps: ['index']
     'directives/maxValidate': deps: ['index']
+    'directives/intValidate': deps: ['index']
     'services/fileManager': deps: ['index']
     'views': deps: ['index']
   [
@@ -18,6 +19,7 @@ require
     'directives/fileUpload'
     'directives/minValidate'
     'directives/maxValidate'
+    'directives/intValidate'
     'services/fileManager'
     'views'
   ], () ->
