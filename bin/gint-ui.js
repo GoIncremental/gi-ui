@@ -1096,6 +1096,36 @@ angular.module('gint.ui').directive('giFileupload', [
   }
 ]);
 
+angular.module('gint.ui').directive('giMin', [
+  function() {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function($scope, $elem, $attrs, $ctrl) {
+        var minValidator;
+        $scope.$watch($attrs.giMin, function() {
+          return $ctrl.$setViewValue($ctrl.$viewValue);
+        });
+        minValidator = function(value) {
+          var min;
+          min = $scope.$eval($attrs.giMin);
+          if ((value != null) && (min != null)) {
+            if (value < min) {
+              $ctrl.$setValidity('giMin', false);
+              return void 0;
+            } else {
+              $ctrl.$setValidity('giMin', true);
+              return value;
+            }
+          }
+        };
+        $ctrl.$parsers.push(minValidator);
+        return $ctrl.$formatters.push(minValidator);
+      }
+    };
+  }
+]);
+
 angular.module('gint.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;
