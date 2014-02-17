@@ -8,6 +8,7 @@ require
     'directives/minValidate': deps: ['index']
     'directives/maxValidate': deps: ['index']
     'directives/intValidate': deps: ['index']
+    'directives/floatValidate': deps: ['index']
     'services/fileManager': deps: ['index']
     'views': deps: ['index']
   [
@@ -20,6 +21,7 @@ require
     'directives/minValidate'
     'directives/maxValidate'
     'directives/intValidate'
+    'directives/floatValidate'
     'services/fileManager'
     'views'
   ], () ->
