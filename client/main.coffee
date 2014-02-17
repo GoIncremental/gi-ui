@@ -6,6 +6,7 @@ require
     'directives/select2': deps: ['index']
     'directives/fileUpload': deps: ['index']
     'directives/minValidate': deps: ['index']
+    'directives/maxValidate': deps: ['index']
     'services/fileManager': deps: ['index']
     'views': deps: ['index']
   [
@@ -16,6 +17,7 @@ require
     'directives/select2'
     'directives/fileUpload'
     'directives/minValidate'
+    'directives/maxValidate'
     'services/fileManager'
     'views'
   ], () ->
