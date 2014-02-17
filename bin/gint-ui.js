@@ -1126,6 +1126,36 @@ angular.module('gint.ui').directive('giMin', [
   }
 ]);
 
+angular.module('gint.ui').directive('giMax', [
+  function() {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function($scope, $elem, $attrs, $ctrl) {
+        var maxValidator;
+        $scope.$watch($attrs.giMax, function() {
+          return $ctrl.$setViewValue($ctrl.$viewValue);
+        });
+        maxValidator = function(value) {
+          var max;
+          max = $scope.$eval($attrs.giMax);
+          if ((value != null) && (max != null)) {
+            if (value > max) {
+              $ctrl.$setValidity('giMax', false);
+              return void 0;
+            } else {
+              $ctrl.$setValidity('giMax', true);
+              return value;
+            }
+          }
+        };
+        $ctrl.$parsers.push(maxValidator);
+        return $ctrl.$formatters.push(maxValidator);
+      }
+    };
+  }
+]);
+
 angular.module('gint.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;
