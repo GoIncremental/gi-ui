@@ -1156,6 +1156,36 @@ angular.module('gint.ui').directive('giMax', [
   }
 ]);
 
+angular.module('gint.ui').directive('giInteger', [
+  function() {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function($scope, $elem, $attrs, $ctrl) {
+        var intValidator;
+        intValidator = function(value) {
+          var intRegex;
+          if (value != null) {
+            intRegex = /^-?\d+$/;
+            if (intRegex.test(value)) {
+              $ctrl.$setValidity('giInteger', true);
+              return value;
+            } else {
+              $ctrl.$setValidity('giInteger', false);
+              return void 0;
+            }
+          } else {
+            $ctrl.$setValidity('giInteger', false);
+            return void 0;
+          }
+        };
+        $ctrl.$parsers.push(intValidator);
+        return $ctrl.$formatters.push(intValidator);
+      }
+    };
+  }
+]);
+
 angular.module('gint.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;
