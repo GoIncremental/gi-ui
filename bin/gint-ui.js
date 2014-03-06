@@ -1200,6 +1200,23 @@ angular.module('gint.ui').directive('giFloat', [
   }
 ]);
 
+angular.module('gint.ui').filter('giShorten', [
+  function() {
+    return function(str, len) {
+      var result;
+      result = '';
+      if (str != null) {
+        if (str.length > len) {
+          result = str.substring(0, len) + '...';
+        } else {
+          result = str;
+        }
+      }
+      return result;
+    };
+  }
+]);
+
 angular.module('gint.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;

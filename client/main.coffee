@@ -10,6 +10,7 @@ require
     'directives/intValidate': deps: ['index']
     'directives/floatValidate': deps: ['index']
     'services/fileManager': deps: ['index']
+    'filters/shorten': deps: ['index']
     'views': deps: ['index']
   [
     'index'
@@ -22,6 +23,7 @@ require
     'directives/maxValidate'
     'directives/intValidate'
     'directives/floatValidate'
+    'filters/shorten'
     'services/fileManager'
     'views'
   ], () ->
