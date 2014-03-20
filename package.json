@@ -1,7 +1,7 @@
 {
   "author": "David Bochenski",
   "name": "gi-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./server/index.coffee",
   "repository": {
     "type": "git",
