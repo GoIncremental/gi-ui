@@ -1,7 +1,7 @@
 <div class="row" >
   <div class="col-md-6" >
     <div ng-show="options.displayCounts">
-      {{ displayCountMessage() }}
+      {{ countMessage }}
     </div>
   </div>
   <div class="col-md-6" ng-hide="options.disableSearch">
@@ -15,12 +15,19 @@
       <thead>
         <tr>
           <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th>
+          <th ng-repeat="column in options.columns">{{column.header}}</th>
         </tr>
       </thead>
       <tbody>
+        <tr ng-repeat="item in pagedItems[currentPage]" 
+            ng-click="selectRow(item)" 
+            gintuidt2item item="item" 
+            columns="options.columns"
+            ng-class="{info: item.selected}">
+        </tr>
       </tbody>
       <tfoot>
-        <td colspan="{{numberOfColumns() }} ">
+        <td colspan="{{ options.columns.length }} ">
           <div class="pull-right">
             <ul class="pagination">
               <li ng-class="{disabled: currentPage == 0}">

@@ -1,230 +1,290 @@
+angular.module('gint.ui').directive 'giDtproperty'
+,['$compile', '$timeout'
+, ($compile, $timeout) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '{{item.' + attrs.giDtproperty + '}}'
+    element.append(body)
+    () ->
+      return
+]
+
+angular.module('gint.ui').directive 'giDtbutton'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '<button class="btn btn-info" ng-click="click()">' + attrs.text + '</button>'
+    element.append(body)
+
+    #compile returns a linking function
+    (scope, elem, attrs) ->
+      scope.click = () ->
+        scope.$emit attrs.event, scope.item[attrs.arg]
+]
+
+angular.module('gint.ui').directive 'giDtfilter'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '{{item | ' + attrs.giDtfilter +  '}}'
+    element.append(body)
+    () ->
+      return
+]
+
+angular.module('gint.ui').directive 'giDtpropertyfilter'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '{{item.' + attrs.giDtpropertyfilter +  '}}'
+    element.append(body)
+    () ->
+      return
+]
+
+angular.module('gint.ui').controller 'gintuidtitemcontroller'
+, [ '$scope', '$element'
+, ($scope, $element) ->
+    $scope.$watch () ->
+      $scope.columns
+    , (newValue, oldValue) ->
+      if newValue isnt oldValue
+        $element.children().remove()
+        render($element, $scope)
+        $compile($element.contents())($scope)
+    , true
+]
+
+angular.module('gint.ui').directive 'gintuidtitem'
+, [ '$compile'
+, ($compile) ->
+
+  createAttrList = (attrsObj) ->
+    res = ""
+    for key, value of attrsObj
+      if value?
+        res += key + '="' + value + '" '
+      else
+        res += key + ' '
+    res
+
+  createTdProperty = (attrsObj) ->
+    angular.element('<table><tr><td ' + createAttrList(attrsObj) + ' ></td></tr></table>')
+    .find 'td'
+
+  render = (element, scope) ->
+    for column in scope.columns
+      if column.visible
+        html = null
+        attrsObj = {}
+
+        switch column.type
+          when 'gi-dtproperty', 'gi-dtfilter', 'gi-dtpropertyfilter' 
+            attrsObj[column.type] = column.property
+          when 'gi-dtbutton'
+            attrsObj[column.type] = null
+            attrsObj.text = column.text
+            attrsObj.event = column.eventName
+            attrsObj.arg = column.property
+
+          
+        html = $compile(createTdProperty(attrsObj))(scope)
+        element.append(html)
+
+  restrict: 'A'
+  scope:
+    item: '='
+    columns: '='
+  controller: 'gintuidtitemcontroller'
+  compile: () ->
+    (scope, element) ->
+      render(element, scope)
+]
+
 angular.module('gint.ui').directive 'giDatatable'
-, [ '$filter', '$timeout'
-, ($filter, $timeout) ->
+, [ '$filter', '$timeout', '$compile'
+, ($filter, $timeout, $compile) ->
   restrict: 'E'
   templateUrl: '/views/dataTable.html'
-  transclude: true
   scope:
     items: '='
-    selectedItems: '='
     options: '='
-    search: '&'
-    sort: '&'
-    destroy: '&'
-    view: '&'
-    altView: '&'
-    edit: '&'
-  compile: ($elem, $attrs, $transcludeFn) ->
-    #this is the place to do DOM maniupulation
-    $transcludeFn $elem, (clone) ->
-      headerBlock = $elem.find('table thead tr')
-      header = clone.filter('div.header')
-      angular.forEach header.children(), (e) ->
-        headerBlock.append '<th ng-click="sort(\'' + angular.element(e).text() +
-        '\')">' + angular.element(e).text() + '</th>'
+  link: ($scope, elem, attrs) ->
+    aPromise = null
+    $scope.filteredItems = []
+    $scope.groupedItems = []
+    $scope.itemsPerPage = 20
+    $scope.pagedItems = []
+    $scope.currentPage = 0
+    $scope.selectAll = "All"
 
-      bodyBlock = $elem.find('table tbody')
-      bodyBlock.append '<tr ng-click="selectRow(item)" ng-repeat="item in pagedItems[currentPage]" ' +
-      'ng-class="{info: item.selected}"><td ng-show="options.selectAll"><input type="checkbox" ' +
-      'ng-model="item.selected" ng-click="selectAllClick($event, item)"></td></tr>'
+    $scope.$watch 'items.length', () ->
+      refresh()
+    
+    #refresh on new query, after a delay
+    $scope.$watch 'query', () ->
+      if aPromise
+        $timeout.cancel aPromise
 
-      body = clone.filter('div.body')
+      aPromise = $timeout refresh, 500
+      aPromise
 
-      angular.forEach body.children(), (e) ->
-        elem = angular.element(e)
+    $scope.$watch 'currentPage', () ->
+      calculateCountMessage()
 
-        if elem.hasClass('property-link')
-          property = elem.attr('gi-property')
-          html = angular.element(e.innerHTML).append '{{item.' + property + '}}'
-          bodyBlock.children().append '<td>' + html[0].outerHTML + '</td>'
-        else if elem.hasClass('property-mailto')
-          property = elem.attr('gi-property')
-          bodyBlock.children().append '<td><a ng-href="mailto:{{item.' +
-          property + '}}"">{{item.' + property + '}}</a></td>'
-        else if elem.hasClass('property')
-          bodyBlock.children().append '<td>{{item.' + elem.text() + '}}</td>'
-        else if elem.hasClass('literal')
-          bodyBlock.children().append '<td>' + e.innerHTML + '</td>'
-        else if elem.hasClass('expression')
-          bodyBlock.children().append '<td>{{' + elem.text() + '}}</td>'
-        else if elem.hasClass('filter')
-          bodyBlock.children().append '<td>{{ item | ' + elem.text() + '}}</td>'
-
-    #the compile function should return the link function
-    #so we'll go ahead and define it here as the last step of compile
-    ($scope) ->
-
-      $scope.filteredItems = []
-      $scope.groupedItems = []
-      $scope.itemsPerPage = 20
-      $scope.pagedItems = []
-      $scope.currentPage = 0
-      $scope.selectAll = "All"
-
-      $scope.$watch 'items', () ->
-        $scope.refresh()
-
-      $scope.$watch 'items.length', () ->
-        $scope.refresh()
-
-      $scope.$watch 'sortProperty', () ->
-        $scope.refresh()
-
-      $scope.options.refreshRequired = false
-      $scope.$watch 'options.refreshRequired', (newVal) ->
-        if newVal
-          $scope.refresh()
+    calculateCountMessage = () ->
+      if $scope.currentPage? and $scope.items? and $scope.pagedItems?
+        start = $scope.currentPage * $scope.itemsPerPage + 1
+        end = $scope.currentPage * $scope.itemsPerPage
+        if $scope.pagedItems[$scope.currentPage]?.length?
+          end = start + $scope.pagedItems[$scope.currentPage]?.length - 1
         else
-          $scope.options.refreshRequired = false
-
-      aPromise = null
-
-      $scope.$watch 'query',  () ->
-        if aPromise
-          $timeout.cancel aPromise
-
-        aPromise = $timeout $scope.refresh, 500
-        aPromise
-
-      $scope.toggleSelectAll = ->
-        if $scope.selectAll is "All"
-          angular.forEach $scope.items, (item) ->
-            item.selected = true
-          $scope.selectedItems = $scope.items
-          $scope.selectAll = "None"
-        else
-          angular.forEach $scope.items, (item) ->
-            item.selected = false
-          $scope.selectedItems = []
-          $scope.selectAll = "All"
-
-      selectionChanged = (item) ->
-        $scope.$emit 'selectionChanged', item
-        unless $scope.options.multi
-          angular.forEach $scope.items, (other) ->
-            if item._id isnt other._id
-              other.selected = false
-        $scope.selectedItems = $filter('filter')($scope.items, (item) ->
-          item.selected)        
-
-      $scope.selectRow = (item) ->
-        item.selected = not item.selected
-        selectionChanged item
-
-      $scope.selectAllClick = (e, item) ->
-        e.stopPropagation()
-        selectionChanged item
-
-      $scope.refresh = ->
-        #allow the parent controller the opportunity to pre-filter
-        if $scope.options.customSearch
-          $scope.filteredItems = $scope.search {query: $scope.query}
-        else
-          $scope.filteredItems = $filter('filter')($scope.items , (item) ->
-            #we're not searching for anything - so return true
-            if not $scope.query
-              return true
-            
-            found = false
-            angular.forEach $scope.options.searchProperties, (property) ->
-              if not found
-                found = true unless $filter('lowercase')(
-                  item[property].toString()
-                )
-                .indexOf($filter('lowercase')($scope.query)) is -1
-              found
-            angular.forEach $scope.options.searchFilters, (property) ->
-              if not found
-                found = true unless $filter('lowercase')(
-                  $filter(property)(item)
-                )
-                .indexOf($filter('lowercase')($scope.query)) is -1
-              found
-            found
-          )
-        #sort the items before they go for pagination
-        if $scope.options.sortProperty
-          if $scope.options.sortDirection is "asc"
-            sortDir = false
-          else
-            sortDir = true
-
-          $scope.filteredItems = $filter('orderBy')($scope.filteredItems
-          , (item) ->
-            item[$scope.options.sortProperty]
-          , sortDir )
-
-        if $scope.options.customSort
-          $scope.filteredItems = $scope.sort {items: $scope.filteredItems}
-
-        $scope.currentPage = 0
-        # now group by pages
-        $scope.groupToPages()
-        $scope.options.refreshRequired = false
-        return
-
-      # calculate page in place
-      $scope.groupToPages = ->
-        if $scope.filteredItems?
-          $scope.pagedItems = []
-          for thing, i in $scope.filteredItems
-            if (i % $scope.itemsPerPage == 0)
-              $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] =
-                [ $scope.filteredItems[i] ]
-            else
-              $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
-              .push($scope.filteredItems[i])
-
-      $scope.range = (currentPage) ->
-        max = $scope.pagedItems.length - 1
-        if max < 1
-          return []
-
-        end =  if max > currentPage + 1 then currentPage + 2
-        start = currentPage - 2
-
-        if currentPage < 3
           start = 0
-          end = 4 if max > 3
+          end = 0
+    
+        total = $scope.filteredItems.length
+        $scope.countMessage = "Showing " + start + " to " +  end + " of " + total
+      else
+        $scope.countMessage = ""
 
-        if currentPage > max - 3
-          end = max
-          start = (max - 4) if max > 3
+    groupToPages = () ->
+      if $scope.filteredItems?
+        $scope.pagedItems = []
+        for thing, i in $scope.filteredItems
+          if (i % $scope.itemsPerPage == 0)
+            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] =
+              [ $scope.filteredItems[i] ]
+          else
+            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
+            .push($scope.filteredItems[i])
 
-        result = []
-        for num in [start..end]
-          result.push num
-        result
-
-      $scope.prevPage = ->
-        if $scope.currentPage > 0
-          $scope.currentPage = $scope.currentPage - 1
-
-      $scope.nextPage = ->
-        if $scope.currentPage < $scope.pagedItems.length - 1
-          $scope.currentPage = $scope.currentPage + 1
-
-      $scope.setPage = (n) ->
-        $scope.currentPage = n
-
-      $scope.displayCountMessage = () ->
-        if $scope.currentPage? and $scope.items? and $scope.pagedItems?
-          start = $scope.currentPage * $scope.itemsPerPage + 1
-          end = $scope.currentPage * $scope.itemsPerPage +
-          $scope.pagedItems[$scope.currentPage]?.length
-          total = $scope.items.length
-          "Showing " + start + " to " +  end + " of " + total
+    refresh = () ->     
+      #allow the parent controller the opportunity to pre-filter
+      if $scope.options.customSearch
+        $scope.filteredItems = $scope.search {query: $scope.query}
+      else
+        $scope.filteredItems = $filter('filter')($scope.items , (item) ->
+          #we're not searching for anything - so return true
+          if not $scope.query
+            return true
+          
+          found = false
+          angular.forEach $scope.options.columns, (column) ->
+            if not found
+              if column.search
+                switch column.type
+                  when 'gi-dtproperty'
+                    searchString = ""
+                    if item[column.property]?
+                      searchString = item[column.property].toString()
+                    found = true unless $filter('lowercase')(
+                      searchString
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
+                  when 'gi-dtfilter'
+                    found = true unless $filter('lowercase')(
+                      $filter(column.property)(item)
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
+                  when 'gi-dtpropertyfilter'
+                    splits = column.property.split('|')
+                    filterName = splits[1].replace(/\s/g, '')
+                    filterProperty = splits[0].replace(/\s/g, '')
+                    found = true unless $filter('lowercase')(
+                      $filter(filterName)(item[filterProperty])
+                    )
+                    .indexOf($filter('lowercase')($scope.query)) is -1
+          found
+        )
+      #sort the items before they go for pagination
+      if $scope.options.sortProperty
+        if $scope.options.sortDirection is "asc"
+          sortDir = false
         else
-         ""
+          sortDir = true
 
-      $scope.numberOfColumns = () ->
-        if $scope.options.columns?
-          result = if $scope.options.selectAll then 1 else 0
-          result + $scope.options.columns
-        else
-          1
+        $scope.filteredItems = $filter('orderBy')($scope.filteredItems
+        , (item) ->
+          item[$scope.options.sortProperty]
+        , sortDir )
 
-      $scope.sort = (name) ->
-        console.log 'sort clicked on : ' + name
-      $scope.refresh()
+      if $scope.options.customSort
+        $scope.filteredItems = $scope.sort {items: $scope.filteredItems}
+
+      $scope.currentPage = 0
+      # now group by pages
+      groupToPages()
+      calculateCountMessage()
+      $scope.options.refreshRequired = false
+      return
+
+    selectionChanged = (item) ->
+      $scope.$emit 'selectionChanged', item
+      unless $scope.options.multi
+        angular.forEach $scope.items, (other) ->
+          if item._id isnt other._id
+            other.selected = false
+      $scope.selectedItems = $filter('filter')($scope.items, (item) ->
+        item.selected)        
+
+    $scope.toggleSelectAll = ->
+      if $scope.selectAll is "All"
+        angular.forEach $scope.items, (item) ->
+          item.selected = true
+        $scope.selectedItems = $scope.items
+        $scope.selectAll = "None"
+      else
+        angular.forEach $scope.items, (item) ->
+          item.selected = false
+        $scope.selectedItems = []
+        $scope.selectAll = "All"
+
+    $scope.selectRow = (item) ->
+      item.selected = not item.selected
+      selectionChanged item
+      eventName = 'row-selected'
+      if $scope.options.rowSelectedEvent?
+        eventName = $scope.options.rowSelectedEvent
+      $scope.$emit eventName, item
+
+    $scope.selectAllClick = (e, item) ->
+      e.stopPropagation()
+      selectionChanged item
+
+
+    $scope.range = (currentPage) ->
+      max = $scope.pagedItems.length - 1
+      if max < 1
+        return []
+
+      end =  if max > currentPage + 1 then currentPage + 2
+      start = currentPage - 2
+
+      if currentPage < 3
+        start = 0
+        end = 4 if max > 3
+
+      if currentPage > max - 3
+        end = max
+        start = (max - 4) if max > 3
+
+      result = []
+      for num in [start..end]
+        result.push num
+      result
+
+    $scope.prevPage = ->
+      if $scope.currentPage > 0
+        $scope.currentPage = $scope.currentPage - 1
+
+    $scope.nextPage = ->
+      if $scope.currentPage < $scope.pagedItems.length - 1
+        $scope.currentPage = $scope.currentPage + 1
+
+    $scope.setPage = (n) ->
+      $scope.currentPage = n
+
 ]

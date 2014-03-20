@@ -20,7 +20,7 @@
     "grunt-contrib-less": "~0.6.4",
     "grunt-contrib-requirejs": "~0.4.1",
     "grunt-contrib-copy": "~0.4.1",
-    "grunt-gint": "~0.3.0",
+    "grunt-gint": "~0.3.1",
     "karma-script-launcher": "~0.1.0",
     "karma-chrome-launcher": "~0.1.0",
     "karma-firefox-launcher": "~0.1.0",
