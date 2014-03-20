@@ -1,4 +1,4 @@
-gint-ui
+gi-ui
 -------------
 
-Reusable Angular UI components (mostly directives), that integrate well with the Gintellect  stack.
+Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.

@@ -57,7 +57,7 @@ module.exports = (grunt) ->
         files:
           './temp/client/js/views.js': './client/views/*.html'
         options:
-          module: 'gint.ui'
+          module: 'gi.ui'
           trim: './client'
     copy:
       dev:
@@ -83,7 +83,7 @@ module.exports = (grunt) ->
 
             return contents
           optimize: 'none'
-          out: 'bin/gint-ui.js'
+          out: 'bin/gi-ui.js'
           preserveLicenseComments: false
           skipModuleInsertion: true
           uglify:
@@ -152,7 +152,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-requirejs'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-copy'
-  grunt.loadNpmTasks 'grunt-gint'
   grunt.loadNpmTasks 'grunt-express'
   grunt.loadNpmTasks 'grunt-karma'
 

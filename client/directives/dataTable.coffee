@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giDtproperty'
+angular.module('gi.ui').directive 'giDtproperty'
 ,['$compile', '$timeout'
 , ($compile, $timeout) ->
   restrict: 'A'

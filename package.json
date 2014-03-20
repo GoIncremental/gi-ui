@@ -1,11 +1,11 @@
 {
   "author": "David Bochenski",
-  "name": "gint-ui",
+  "name": "gi-ui",
   "version": "0.1.0",
   "main": "./server/index.coffee",
   "repository": {
     "type": "git",
-    "url": "git://github.com/gintellect/gint-ui.git"
+    "url": "git://github.com/GoIncremental/gi-ui.git"
   },
   "engines": {
     "node": ">= 0.10.0"
@@ -33,5 +33,19 @@
     "grunt-karma": "~0.6.1",
     "grunt-express": "~1.2.1",
     "express": "~3.4.2"
-  }
+  },
+  "description": "gi-ui -------------",
+  "bugs": {
+    "url": "https://github.com/GoIncremental/gi-ui/issues"
+  },
+  "bin": {
+    "gi-ui": "gi-ui.js"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "Apache 2.0"
 }
