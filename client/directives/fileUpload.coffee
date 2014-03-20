@@ -22,7 +22,8 @@ angular.module('gint.ui').directive 'giFileupload'
       scope.$apply () ->
         angular.forEach o.files, (file) ->
           if file.error
-            file.errorMessage = locale.fileupload.errors[file.error] or file.error
+            fu = locale.fileupload
+            file.errorMessage = fu.errors[file.error] or file.error
             scope.erroredFiles.push file
             return
           else
@@ -72,7 +73,8 @@ angular.module('gint.ui').directive 'giFileupload'
             if file.type is blob.type
               blob.name = options.prefix + file.name
             else if file.name?
-              blob.name = options.prefix + file.name.replace /\..+$/, '.' + blob.type.substr(6)
+              blob.name = options.prefix
+              + file.name.replace /\..+$/, '.' + blob.type.substr(6)
 
           deferred.resolve blob
       
@@ -131,11 +133,13 @@ angular.module('gint.ui').directive 'giFileupload'
         else
           scope.removeFromQueue data.files[0]
           console.log data
-          FileManager.save(data.files[0], scope.parent, data.formData).then (fileInfo) ->
+          FileManager.save(data.files[0], scope.parent
+          , data.formData).then (fileInfo) ->
             console.log 'resolving: ' + name
             data.files[0].promise.resolve()
             if data.files[0].error
-              file.errorMessage = locale.fileupload.errors[file.error] or file.error
+              fu = locale.fileupload
+              file.errorMessage = fu.errors[file.error] or file.error
               scope.erroredFiles.push file
             else
               scope.uploadedFiles.push fileInfo
@@ -145,19 +149,24 @@ angular.module('gint.ui').directive 'giFileupload'
         name = data.files[0].name
         data.files[0].s3alternates = []
         resized[name] = []
-        getResizedImage(data, {maxWidth: 940, maxHeight: 530, prefix: 'thumb/940/'}).then (blob) ->
+        getResizedImage(data, {maxWidth: 940, maxHeight: 530
+        , prefix: 'thumb/940/'}).then (blob) ->
           resized[name].push blob
           data.files[0].s3alternates.push 'thumb/940/'
-          getResizedImage(data, {maxWidth: 940, maxHeight: 300, prefix: 'thumb/300h/'}).then (blob) ->
+          getResizedImage(data, {maxWidth: 940, maxHeight: 300
+          , prefix: 'thumb/300h/'}).then (blob) ->
             resized[name].push blob
             data.files[0].s3alternates.push 'thumb/300h/'
-            getResizedImage(data, {maxWidth: 350, maxHeight: 200, prefix: 'thumb/350/'}).then (blob) ->
+            getResizedImage(data, {maxWidth: 350, maxHeight: 200
+            , prefix: 'thumb/350/'}).then (blob) ->
               resized[name].push blob
               data.files[0].s3alternates.push 'thumb/350/'
-              getResizedImage(data, {maxWidth: 150, maxHeight: 150, prefix: 'thumb/'}).then (blob) ->
+              getResizedImage(data, {maxWidth: 150, maxHeight: 150
+              , prefix: 'thumb/'}).then (blob) ->
                 resized[name].push blob
                 data.files[0].s3alternates.push 'thumb/'
-                previewImg = loadImage.scale data.img, {maxWidth: 80, maxHeight: 80, canvas: true}
+                previewImg = loadImage.scale data.img, {maxWidth: 80
+                , maxHeight: 80, canvas: true}
                 previews[name] = previewImg
 
     scope.removeFromQueue = (file) ->
@@ -243,7 +252,8 @@ angular.module('gint.ui').directive 'giFileupload'
       angular.forEach scope.pendingFiles, (file) ->
         promises.push uploadToS3(file)
 
-      console.log 'waiting on ' + promises.length + ' files to be uploaded to S3'
+      console.log 'waiting on ' + promises.length
+      + ' files to be uploaded to S3'
 
       $q.all(promises).then () ->
         console.log 'all files uploaded to S3'

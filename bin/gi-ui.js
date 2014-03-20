@@ -1,4 +1,3 @@
-
 angular.module('gint.ui', ['gint.util']);
 
 angular.module('gint.ui').directive('giModal', [
@@ -56,268 +55,13 @@ angular.module('gint.ui').directive('giModal', [
   }
 ]);
 
-angular.module('gint.ui').directive('giDatatable', [
-  '$filter', '$timeout', function($filter, $timeout) {
-    return {
-      restrict: 'E',
-      templateUrl: '/views/dataTable.html',
-      transclude: true,
-      scope: {
-        items: '=',
-        selectedItems: '=',
-        options: '=',
-        search: '&',
-        sort: '&',
-        destroy: '&',
-        view: '&',
-        altView: '&',
-        edit: '&'
-      },
-      compile: function($elem, $attrs, $transcludeFn) {
-        $transcludeFn($elem, function(clone) {
-          var body, bodyBlock, header, headerBlock;
-          headerBlock = $elem.find('table thead tr');
-          header = clone.filter('div.header');
-          angular.forEach(header.children(), function(e) {
-            return headerBlock.append('<th ng-click="sort(\'' + angular.element(e).text() + '\')">' + angular.element(e).text() + '</th>');
-          });
-          bodyBlock = $elem.find('table tbody');
-          bodyBlock.append('<tr ng-click="selectRow(item)" ng-repeat="item in pagedItems[currentPage]" ' + 'ng-class="{info: item.selected}"><td ng-show="options.selectAll"><input type="checkbox" ' + 'ng-model="item.selected" ng-click="selectAllClick($event, item)"></td></tr>');
-          body = clone.filter('div.body');
-          return angular.forEach(body.children(), function(e) {
-            var elem, html, property;
-            elem = angular.element(e);
-            if (elem.hasClass('property-link')) {
-              property = elem.attr('gi-property');
-              html = angular.element(e.innerHTML).append('{{item.' + property + '}}');
-              return bodyBlock.children().append('<td>' + html[0].outerHTML + '</td>');
-            } else if (elem.hasClass('property-mailto')) {
-              property = elem.attr('gi-property');
-              return bodyBlock.children().append('<td><a ng-href="mailto:{{item.' + property + '}}"">{{item.' + property + '}}</a></td>');
-            } else if (elem.hasClass('property')) {
-              return bodyBlock.children().append('<td>{{item.' + elem.text() + '}}</td>');
-            } else if (elem.hasClass('literal')) {
-              return bodyBlock.children().append('<td>' + e.innerHTML + '</td>');
-            } else if (elem.hasClass('expression')) {
-              return bodyBlock.children().append('<td>{{' + elem.text() + '}}</td>');
-            } else if (elem.hasClass('filter')) {
-              return bodyBlock.children().append('<td>{{ item | ' + elem.text() + '}}</td>');
-            }
-          });
-        });
-        return function($scope) {
-          var aPromise, selectionChanged;
-          $scope.filteredItems = [];
-          $scope.groupedItems = [];
-          $scope.itemsPerPage = 20;
-          $scope.pagedItems = [];
-          $scope.currentPage = 0;
-          $scope.selectAll = "All";
-          $scope.$watch('items', function() {
-            return $scope.refresh();
-          });
-          $scope.$watch('items.length', function() {
-            return $scope.refresh();
-          });
-          $scope.$watch('sortProperty', function() {
-            return $scope.refresh();
-          });
-          $scope.options.refreshRequired = false;
-          $scope.$watch('options.refreshRequired', function(newVal) {
-            if (newVal) {
-              return $scope.refresh();
-            } else {
-              return $scope.options.refreshRequired = false;
-            }
-          });
-          aPromise = null;
-          $scope.$watch('query', function() {
-            if (aPromise) {
-              $timeout.cancel(aPromise);
-            }
-            aPromise = $timeout($scope.refresh, 500);
-            return aPromise;
-          });
-          $scope.toggleSelectAll = function() {
-            if ($scope.selectAll === "All") {
-              angular.forEach($scope.items, function(item) {
-                return item.selected = true;
-              });
-              $scope.selectedItems = $scope.items;
-              return $scope.selectAll = "None";
-            } else {
-              angular.forEach($scope.items, function(item) {
-                return item.selected = false;
-              });
-              $scope.selectedItems = [];
-              return $scope.selectAll = "All";
-            }
-          };
-          selectionChanged = function(item) {
-            $scope.$emit('selectionChanged', item);
-            if (!$scope.options.multi) {
-              angular.forEach($scope.items, function(other) {
-                if (item._id !== other._id) {
-                  return other.selected = false;
-                }
-              });
-            }
-            return $scope.selectedItems = $filter('filter')($scope.items, function(item) {
-              return item.selected;
-            });
-          };
-          $scope.selectRow = function(item) {
-            item.selected = !item.selected;
-            return selectionChanged(item);
-          };
-          $scope.selectAllClick = function(e, item) {
-            e.stopPropagation();
-            return selectionChanged(item);
-          };
-          $scope.refresh = function() {
-            var sortDir;
-            if ($scope.options.customSearch) {
-              $scope.filteredItems = $scope.search({
-                query: $scope.query
-              });
-            } else {
-              $scope.filteredItems = $filter('filter')($scope.items, function(item) {
-                var found;
-                if (!$scope.query) {
-                  return true;
-                }
-                found = false;
-                angular.forEach($scope.options.searchProperties, function(property) {
-                  if (!found) {
-                    if ($filter('lowercase')(item[property].toString()).indexOf($filter('lowercase')($scope.query)) !== -1) {
-                      found = true;
-                    }
-                  }
-                  return found;
-                });
-                angular.forEach($scope.options.searchFilters, function(property) {
-                  if (!found) {
-                    if ($filter('lowercase')($filter(property)(item)).indexOf($filter('lowercase')($scope.query)) !== -1) {
-                      found = true;
-                    }
-                  }
-                  return found;
-                });
-                return found;
-              });
-            }
-            if ($scope.options.sortProperty) {
-              if ($scope.options.sortDirection === "asc") {
-                sortDir = false;
-              } else {
-                sortDir = true;
-              }
-              $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-                return item[$scope.options.sortProperty];
-              }, sortDir);
-            }
-            if ($scope.options.customSort) {
-              $scope.filteredItems = $scope.sort({
-                items: $scope.filteredItems
-              });
-            }
-            $scope.currentPage = 0;
-            $scope.groupToPages();
-            $scope.options.refreshRequired = false;
-          };
-          $scope.groupToPages = function() {
-            var i, thing, _i, _len, _ref, _results;
-            if ($scope.filteredItems != null) {
-              $scope.pagedItems = [];
-              _ref = $scope.filteredItems;
-              _results = [];
-              for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-                thing = _ref[i];
-                if (i % $scope.itemsPerPage === 0) {
-                  _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]]);
-                } else {
-                  _results.push($scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]));
-                }
-              }
-              return _results;
-            }
-          };
-          $scope.range = function(currentPage) {
-            var end, max, num, result, start, _i;
-            max = $scope.pagedItems.length - 1;
-            if (max < 1) {
-              return [];
-            }
-            end = max > currentPage + 1 ? currentPage + 2 : void 0;
-            start = currentPage - 2;
-            if (currentPage < 3) {
-              start = 0;
-              if (max > 3) {
-                end = 4;
-              }
-            }
-            if (currentPage > max - 3) {
-              end = max;
-              if (max > 3) {
-                start = max - 4;
-              }
-            }
-            result = [];
-            for (num = _i = start; start <= end ? _i <= end : _i >= end; num = start <= end ? ++_i : --_i) {
-              result.push(num);
-            }
-            return result;
-          };
-          $scope.prevPage = function() {
-            if ($scope.currentPage > 0) {
-              return $scope.currentPage = $scope.currentPage - 1;
-            }
-          };
-          $scope.nextPage = function() {
-            if ($scope.currentPage < $scope.pagedItems.length - 1) {
-              return $scope.currentPage = $scope.currentPage + 1;
-            }
-          };
-          $scope.setPage = function(n) {
-            return $scope.currentPage = n;
-          };
-          $scope.displayCountMessage = function() {
-            var end, start, total, _ref;
-            if (($scope.currentPage != null) && ($scope.items != null) && ($scope.pagedItems != null)) {
-              start = $scope.currentPage * $scope.itemsPerPage + 1;
-              end = $scope.currentPage * $scope.itemsPerPage + ((_ref = $scope.pagedItems[$scope.currentPage]) != null ? _ref.length : void 0);
-              total = $scope.items.length;
-              return "Showing " + start + " to " + end + " of " + total;
-            } else {
-              return "";
-            }
-          };
-          $scope.numberOfColumns = function() {
-            var result;
-            if ($scope.options.columns != null) {
-              result = $scope.options.selectAll ? 1 : 0;
-              return result + $scope.options.columns;
-            } else {
-              return 1;
-            }
-          };
-          $scope.sort = function(name) {
-            return console.log('sort clicked on : ' + name);
-          };
-          return $scope.refresh();
-        };
-      }
-    };
-  }
-]);
-
-angular.module('gint.ui').directive('giDt2property', [
+angular.module('gi.ui').directive('giDtproperty', [
   '$compile', '$timeout', function($compile, $timeout) {
     return {
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '{{item.' + attrs.giDt2property + '}}';
+        body = '{{item.' + attrs.giDtproperty + '}}';
         element.append(body);
         return function() {};
       }
@@ -325,13 +69,14 @@ angular.module('gint.ui').directive('giDt2property', [
   }
 ]);
 
-angular.module('gint.ui').directive('giDt2button', [
+angular.module('gint.ui').directive('giDtbutton', [
   '$compile', function($compile) {
     return {
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '<button class="btn btn-info" ng-click="click()">' + attrs.text + '</button>';
+        body = '<button class="btn btn-info" ng-click="click()">';
+        +attrs.text + '</button>';
         element.append(body);
         return function(scope, elem, attrs) {
           return scope.click = function() {
@@ -343,13 +88,13 @@ angular.module('gint.ui').directive('giDt2button', [
   }
 ]);
 
-angular.module('gint.ui').directive('giDt2filter', [
+angular.module('gint.ui').directive('giDtfilter', [
   '$compile', function($compile) {
     return {
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '{{item | ' + attrs.giDt2filter + '}}';
+        body = '{{item | ' + attrs.giDtfilter + '}}';
         element.append(body);
         return function() {};
       }
@@ -357,13 +102,13 @@ angular.module('gint.ui').directive('giDt2filter', [
   }
 ]);
 
-angular.module('gint.ui').directive('giDt2propertyfilter', [
+angular.module('gint.ui').directive('giDtpropertyfilter', [
   '$compile', function($compile) {
     return {
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '{{item.' + attrs.giDt2propertyfilter + '}}';
+        body = '{{item.' + attrs.giDtpropertyfilter + '}}';
         element.append(body);
         return function() {};
       }
@@ -371,7 +116,7 @@ angular.module('gint.ui').directive('giDt2propertyfilter', [
   }
 ]);
 
-angular.module('gint.ui').controller('gintuidt2itemcontroller', [
+angular.module('gint.ui').controller('gintuidtitemcontroller', [
   '$scope', '$element', function($scope, $element) {
     return $scope.$watch(function() {
       return $scope.columns;
@@ -385,7 +130,7 @@ angular.module('gint.ui').controller('gintuidt2itemcontroller', [
   }
 ]);
 
-angular.module('gint.ui').directive('gintuidt2item', [
+angular.module('gint.ui').directive('gintuidtitem', [
   '$compile', function($compile) {
     var createAttrList, createTdProperty, render;
     createAttrList = function(attrsObj) {
@@ -402,7 +147,7 @@ angular.module('gint.ui').directive('gintuidt2item', [
       return res;
     };
     createTdProperty = function(attrsObj) {
-      return angular.element('<table><tr><td ' + createAttrList(attrsObj) + ' ></td></tr></table>').find('td');
+      return angular.element('<table><tr><td ' + createAttrList(attrsObj), +' ></td></tr></table>').find('td');
     };
     render = function(element, scope) {
       var attrsObj, column, html, _i, _len, _ref, _results;
@@ -414,12 +159,12 @@ angular.module('gint.ui').directive('gintuidt2item', [
           html = null;
           attrsObj = {};
           switch (column.type) {
-            case 'gi-dt2property':
-            case 'gi-dt2filter':
-            case 'gi-dt2propertyfilter':
+            case 'gi-dtproperty':
+            case 'gi-dtfilter':
+            case 'gi-dtpropertyfilter':
               attrsObj[column.type] = column.property;
               break;
-            case 'gi-dt2button':
+            case 'gi-dtbutton':
               attrsObj[column.type] = null;
               attrsObj.text = column.text;
               attrsObj.event = column.eventName;
@@ -439,7 +184,7 @@ angular.module('gint.ui').directive('gintuidt2item', [
         item: '=',
         columns: '='
       },
-      controller: 'gintuidt2itemcontroller',
+      controller: 'gintuidtitemcontroller',
       compile: function() {
         return function(scope, element) {
           return render(element, scope);
@@ -449,11 +194,11 @@ angular.module('gint.ui').directive('gintuidt2item', [
   }
 ]);
 
-angular.module('gint.ui').directive('giDatatable2', [
+angular.module('gint.ui').directive('giDatatable', [
   '$filter', '$timeout', '$compile', function($filter, $timeout, $compile) {
     return {
       restrict: 'E',
-      templateUrl: '/views/dataTable2.html',
+      templateUrl: '/views/dataTable.html',
       scope: {
         items: '=',
         options: '='
@@ -492,7 +237,8 @@ angular.module('gint.ui').directive('giDatatable2', [
               end = 0;
             }
             total = $scope.filteredItems.length;
-            return $scope.countMessage = "Showing " + start + " to " + end + " of " + total;
+            $scope.countMessage = "Showing " + start + " to " + end;
+            return +" of " + total;
           } else {
             return $scope.countMessage = "";
           }
@@ -532,7 +278,7 @@ angular.module('gint.ui').directive('giDatatable2', [
                 if (!found) {
                   if (column.search) {
                     switch (column.type) {
-                      case 'gi-dt2property':
+                      case 'gi-dtproperty':
                         searchString = "";
                         if (item[column.property] != null) {
                           searchString = item[column.property].toString();
@@ -541,12 +287,12 @@ angular.module('gint.ui').directive('giDatatable2', [
                           return found = true;
                         }
                         break;
-                      case 'gi-dt2filter':
+                      case 'gi-dtfilter':
                         if ($filter('lowercase')($filter(column.property)(item)).indexOf($filter('lowercase')($scope.query)) !== -1) {
                           return found = true;
                         }
                         break;
-                      case 'gi-dt2propertyfilter':
+                      case 'gi-dtpropertyfilter':
                         splits = column.property.split('|');
                         filterName = splits[1].replace(/\s/g, '');
                         filterProperty = splits[0].replace(/\s/g, '');
@@ -822,8 +568,10 @@ angular.module('gint.ui').directive('giFileupload', [
         uploadTemplate = function(o) {
           return scope.$apply(function() {
             return angular.forEach(o.files, function(file) {
+              var fu;
               if (file.error) {
-                file.errorMessage = locale.fileupload.errors[file.error] || file.error;
+                fu = locale.fileupload;
+                file.errorMessage = fu.errors[file.error] || file.error;
                 scope.erroredFiles.push(file);
               } else {
                 if (file.order == null) {
@@ -873,7 +621,8 @@ angular.module('gint.ui').directive('giFileupload', [
                 if (file.type === blob.type) {
                   blob.name = options.prefix + file.name;
                 } else if (file.name != null) {
-                  blob.name = options.prefix + file.name.replace(/\..+$/, '.' + blob.type.substr(6));
+                  blob.name = options.prefix;
+                  +file.name.replace(/\..+$/, '.' + blob.type.substr(6));
                 }
               }
               return deferred.resolve(blob);
@@ -931,10 +680,12 @@ angular.module('gint.ui').directive('giFileupload', [
               scope.removeFromQueue(data.files[0]);
               console.log(data);
               return FileManager.save(data.files[0], scope.parent, data.formData).then(function(fileInfo) {
+                var fu;
                 console.log('resolving: ' + name);
                 data.files[0].promise.resolve();
                 if (data.files[0].error) {
-                  file.errorMessage = locale.fileupload.errors[file.error] || file.error;
+                  fu = locale.fileupload;
+                  file.errorMessage = fu.errors[file.error] || file.error;
                   return scope.erroredFiles.push(file);
                 } else {
                   return scope.uploadedFiles.push(fileInfo);
@@ -1085,7 +836,8 @@ angular.module('gint.ui').directive('giFileupload', [
           angular.forEach(scope.pendingFiles, function(file) {
             return promises.push(uploadToS3(file));
           });
-          console.log('waiting on ' + promises.length + ' files to be uploaded to S3');
+          console.log('waiting on ' + promises.length);
+          +' files to be uploaded to S3';
           return $q.all(promises).then(function() {
             console.log('all files uploaded to S3');
             return promise.resolve();
@@ -1312,9 +1064,8 @@ angular.module('gint.ui').factory('giFileManager', [
   }
 ]);
 
-angular.module('gint.ui').run(['$templateCache', function ($templateCache) {
-	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ displayCountMessage() }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> </tr> </thead> <tbody> </tbody> <tfoot> <td colspan="{{numberOfColumns() }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
-	$templateCache.put('/views/dataTable2.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ countMessage }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> <th ng-repeat="column in options.columns">{{column.header}}</th> </tr> </thead> <tbody> <tr ng-repeat="item in pagedItems[currentPage]" ng-click="selectRow(item)" gintuidt2item item="item" columns="options.columns" ng-class="{info: item.selected}"> </tr> </tbody> <tfoot> <td colspan="{{ options.columns.length }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
+angular.module('gi.ui').run(['$templateCache', function ($templateCache) {
+	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ countMessage }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table table-striped table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> <th ng-repeat="column in options.columns">{{column.header}}</th> </tr> </thead> <tbody> <tr ng-repeat="item in pagedItems[currentPage]" ng-click="selectRow(item)" gintuidt2item item="item" columns="options.columns" ng-class="{info: item.selected}"> </tr> </tbody> <tfoot> <td colspan="{{ options.columns.length }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div>');
 	$templateCache.put('/views/fileUpload.html', '<form> <div class="row-fluid fileupload-buttonbar"> <div class="col-md-7"> <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>{{addText}}</span> <input id="fileupload" type="file" name="file" multiple> </span> </div> <div class="span5 fileupload-progress fade"> <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100"> <div class="bar" style="width:0%;"></div> </div> <div class="progress-extended">&nbsp;</div> </div> </div> <table class="table table-striped"> <thead> <tr> <th></th> <th>Name</th> <th>Size</th> <th>Primary</th> <th>Exclude From Detail</th> <th>Order</th> <th></th> <th></th> <th></th> </tr> </thead> <tbody class="files"> <tr ng-repeat="f in erroredFiles"> <td></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td colspan="2"><span class="label label-important error">{{f.errorMessage}}</span></td> </tr> <tr ng-repeat="f in pendingFiles"> <td><image-preview file="f"></image-preview></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromQueue(f)" class="btn btn-warning"> <i class="icon-trash icon-white"></i> <span>Cancel</span> </button></td> </tr> <tr ng-repeat="f in uploadedFiles"> <td><img ng-src="{{f.thumb}}"></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromS3(f, $event)" class="btn btn-danger"> <i class="icon-trash icon-white"></i> <span>Remove</span> </button></td> </tr> </tbody> </table> </form> ');
 	$templateCache.put('/views/modal.html', '<div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn btn-default pull-right" ng-click="hide()">Cancel</button> </div> </div> </div> ');
 	$templateCache.put('/views/select2.html', '<input type="text" class="form-control"/>');

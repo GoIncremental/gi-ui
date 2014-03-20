@@ -8,7 +8,7 @@ angular.module('gint.ui').directive 'giFloat'
     
     $ctrl.$parsers.unshift (viewValue) ->
 
-      if intRegex.test(viewValue)    
+      if intRegex.test(viewValue)
         $ctrl.$setValidity 'giFloat', true
         return parseFloat(viewValue.replace(',', '.'))
       else

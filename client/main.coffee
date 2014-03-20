@@ -1,4 +1,4 @@
-require 
+require
   shim:
     'directives/modal': deps: ['index']
     'directives/dataTable': deps: ['index']
@@ -16,7 +16,6 @@ require
     'index'
     'directives/modal'
     'directives/dataTable'
-    'directives/dataTable2'
     'directives/select2'
     'directives/fileUpload'
     'directives/minValidate'

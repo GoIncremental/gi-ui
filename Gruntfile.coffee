@@ -88,19 +88,6 @@ module.exports = (grunt) ->
           skipModuleInsertion: true
           uglify:
             no_mangle: false
-    watch:
-      dev:
-        files: ['client/**', 'server/**']
-        tasks: ['default']
-      html:
-        files: ['client/views/*.html']
-        tasks: ['ngTemplateCache', 'copy:views', 'karma:unit:run']
-      mochaTests:
-        files: ['test/server/**/*.coffee']
-        tasks: ['coffeeLint:tests', 'mocha:unit']
-      unitTests:
-        files: ['test/client/**/*.coffee']
-        tasks: ['coffeeLint:tests', 'karma:unit:run']
 
     express:
       test:
@@ -150,10 +137,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-requirejs'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-express'
-  grunt.loadNpmTasks 'grunt-karma'
 
   grunt.registerTask 'build'
   , ['clean', 'coffeeLint', 'coffee', 'ngTemplateCache'
@@ -161,18 +146,6 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'default'
   , ['build']
-
-  grunt.registerTask 'travis'
-  , ['build', 'mocha:travis', 'karma:travis' ]
-
-  grunt.registerTask 'coverage'
-  , ['build', 'karma:coverage', 'clean:bin']
-
-  grunt.registerTask 'ciserver'
-  , ['build', 'karma:unit']
-
-  grunt.registerTask 'run'
-  , [ 'build', 'watch']
   
   grunt.registerTask 'server', [
     'build'

@@ -14,7 +14,8 @@ angular.module('gint.ui').directive 'giDtbutton'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<button class="btn btn-info" ng-click="click()">' + attrs.text + '</button>'
+    body = '<button class="btn btn-info" ng-click="click()">'
+    + attrs.text + '</button>'
     element.append(body)
 
     #compile returns a linking function
@@ -72,7 +73,8 @@ angular.module('gint.ui').directive 'gintuidtitem'
     res
 
   createTdProperty = (attrsObj) ->
-    angular.element('<table><tr><td ' + createAttrList(attrsObj) + ' ></td></tr></table>')
+    angular.element('<table><tr><td ' + createAttrList(attrsObj)
+    + ' ></td></tr></table>')
     .find 'td'
 
   render = (element, scope) ->
@@ -82,7 +84,7 @@ angular.module('gint.ui').directive 'gintuidtitem'
         attrsObj = {}
 
         switch column.type
-          when 'gi-dtproperty', 'gi-dtfilter', 'gi-dtpropertyfilter' 
+          when 'gi-dtproperty', 'gi-dtfilter', 'gi-dtpropertyfilter'
             attrsObj[column.type] = column.property
           when 'gi-dtbutton'
             attrsObj[column.type] = null
@@ -146,7 +148,8 @@ angular.module('gint.ui').directive 'giDatatable'
           end = 0
     
         total = $scope.filteredItems.length
-        $scope.countMessage = "Showing " + start + " to " +  end + " of " + total
+        $scope.countMessage = "Showing " + start + " to " +  end
+        + " of " + total
       else
         $scope.countMessage = ""
 
@@ -161,7 +164,7 @@ angular.module('gint.ui').directive 'giDatatable'
             $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
             .push($scope.filteredItems[i])
 
-    refresh = () ->     
+    refresh = () ->
       #allow the parent controller the opportunity to pre-filter
       if $scope.options.customSearch
         $scope.filteredItems = $scope.search {query: $scope.query}
@@ -227,8 +230,10 @@ angular.module('gint.ui').directive 'giDatatable'
         angular.forEach $scope.items, (other) ->
           if item._id isnt other._id
             other.selected = false
-      $scope.selectedItems = $filter('filter')($scope.items, (item) ->
-        item.selected)        
+      $scope.selectedItems = $filter('filter')(
+        $scope.items, (item) ->
+          item.selected
+      )
 
     $scope.toggleSelectAll = ->
       if $scope.selectAll is "All"

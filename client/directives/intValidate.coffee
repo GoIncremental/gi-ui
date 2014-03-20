@@ -8,7 +8,7 @@ angular.module('gint.ui').directive 'giInteger'
     
     $ctrl.$parsers.unshift (value) ->
 
-      if intRegex.test(value)    
+      if intRegex.test(value)
         $ctrl.$setValidity 'giInteger', true
         return value
       else
