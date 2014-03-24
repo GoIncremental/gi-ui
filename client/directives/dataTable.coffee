@@ -14,8 +14,8 @@ angular.module('gi.ui').directive 'giDtbutton'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<button class="btn btn-info" ng-click="click()">'
-    + attrs.text + '</button>'
+    body = '<button class="btn btn-info" ng-click="click()">' +
+    attrs.text + '</button>'
     element.append(body)
 
     #compile returns a linking function
@@ -46,7 +46,7 @@ angular.module('gi.ui').directive 'giDtpropertyfilter'
       return
 ]
 
-angular.module('gi.ui').controller 'giuidtitemcontroller'
+angular.module('gi.ui').controller 'giDtItemController'
 , [ '$scope', '$element'
 , ($scope, $element) ->
     $scope.$watch () ->
@@ -59,7 +59,7 @@ angular.module('gi.ui').controller 'giuidtitemcontroller'
     , true
 ]
 
-angular.module('gi.ui').directive 'giuidtitem'
+angular.module('gi.ui').directive 'giDtItem'
 , [ '$compile'
 , ($compile) ->
 
@@ -73,8 +73,8 @@ angular.module('gi.ui').directive 'giuidtitem'
     res
 
   createTdProperty = (attrsObj) ->
-    angular.element('<table><tr><td ' + createAttrList(attrsObj)
-    + ' ></td></tr></table>')
+    angular.element('<table><tr><td ' + createAttrList(attrsObj) +
+    ' ></td></tr></table>')
     .find 'td'
 
   render = (element, scope) ->
@@ -82,7 +82,6 @@ angular.module('gi.ui').directive 'giuidtitem'
       if column.visible
         html = null
         attrsObj = {}
-
         switch column.type
           when 'gi-dtproperty', 'gi-dtfilter', 'gi-dtpropertyfilter'
             attrsObj[column.type] = column.property
@@ -92,7 +91,6 @@ angular.module('gi.ui').directive 'giuidtitem'
             attrsObj.event = column.eventName
             attrsObj.arg = column.property
 
-          
         html = $compile(createTdProperty(attrsObj))(scope)
         element.append(html)
 
@@ -100,7 +98,7 @@ angular.module('gi.ui').directive 'giuidtitem'
   scope:
     item: '='
     columns: '='
-  controller: 'giuidtitemcontroller'
+  controller: 'giDtItemController'
   compile: () ->
     (scope, element) ->
       render(element, scope)
@@ -148,8 +146,8 @@ angular.module('gi.ui').directive 'giDatatable'
           end = 0
     
         total = $scope.filteredItems.length
-        $scope.countMessage = "Showing " + start + " to " +  end
-        + " of " + total
+        $scope.countMessage = "Showing " + start + " to " +  end +
+        " of " + total
       else
         $scope.countMessage = ""
 
