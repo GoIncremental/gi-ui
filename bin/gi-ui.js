@@ -1,6 +1,7 @@
-angular.module('gint.ui', ['gint.util']);
 
-angular.module('gint.ui').directive('giModal', [
+angular.module('gi.ui', ['gi.util']);
+
+angular.module('gi.ui').directive('giModal', [
   function() {
     return {
       restrict: 'E',
@@ -412,7 +413,7 @@ angular.module('gint.ui').directive('giDatatable', [
   }
 ]);
 
-angular.module('gint.ui').directive('giSelect2', [
+angular.module('gi.ui').directive('giSelect2', [
   '$timeout', function($timeout) {
     return {
       restrict: 'E',
@@ -549,7 +550,7 @@ angular.module('gint.ui').directive('giSelect2', [
   }
 ]);
 
-angular.module('gint.ui').directive('giFileupload', [
+angular.module('gi.ui').directive('giFileupload', [
   '$q', 'giFileManager', function($q, FileManager) {
     return {
       restrict: 'E',
@@ -848,7 +849,7 @@ angular.module('gint.ui').directive('giFileupload', [
   }
 ]);
 
-angular.module('gint.ui').directive('giMin', [
+angular.module('gi.ui').directive('giMin', [
   function() {
     return {
       restrict: 'A',
@@ -878,7 +879,7 @@ angular.module('gint.ui').directive('giMin', [
   }
 ]);
 
-angular.module('gint.ui').directive('giMax', [
+angular.module('gi.ui').directive('giMax', [
   function() {
     return {
       restrict: 'A',
@@ -908,7 +909,7 @@ angular.module('gint.ui').directive('giMax', [
   }
 ]);
 
-angular.module('gint.ui').directive('giInteger', [
+angular.module('gi.ui').directive('giInteger', [
   function() {
     var intRegex;
     intRegex = /^\-?\d+$/;
@@ -930,7 +931,7 @@ angular.module('gint.ui').directive('giInteger', [
   }
 ]);
 
-angular.module('gint.ui').directive('giFloat', [
+angular.module('gi.ui').directive('giFloat', [
   function() {
     var intRegex;
     intRegex = /^\-?\d+((\.|\,)\d+)?$/;
@@ -952,7 +953,7 @@ angular.module('gint.ui').directive('giFloat', [
   }
 ]);
 
-angular.module('gint.ui').filter('giShorten', [
+angular.module('gi.ui').filter('giShorten', [
   function() {
     return function(str, len) {
       var result;
@@ -969,7 +970,7 @@ angular.module('gint.ui').filter('giShorten', [
   }
 ]);
 
-angular.module('gint.ui').factory('giFileManager', [
+angular.module('gi.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;
     crudService = Crud.factory('files', true);

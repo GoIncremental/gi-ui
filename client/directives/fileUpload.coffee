@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giFileupload'
+angular.module('gi.ui').directive 'giFileupload'
 , [ '$q', 'giFileManager'
 , ($q, FileManager) ->
   restrict: 'E'

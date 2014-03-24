@@ -1,4 +1,4 @@
-angular.module('gint.ui').filter 'giShorten'
+angular.module('gi.ui').filter 'giShorten'
 , [ () ->
   (str, len) ->
     result = ''

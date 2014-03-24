@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giMax'
+angular.module('gi.ui').directive 'giMax'
 , [ () ->
   restrict: 'A'
   require: 'ngModel'

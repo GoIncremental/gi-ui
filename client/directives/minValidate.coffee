@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giMin'
+angular.module('gi.ui').directive 'giMin'
 , [ () ->
   restrict: 'A'
   require: 'ngModel'
