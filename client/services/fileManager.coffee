@@ -1,4 +1,4 @@
-angular.module('gint.ui').factory 'giFileManager'
+angular.module('gi.ui').factory 'giFileManager'
 , ['$q', '$http', 'giCrud'
 , ($q, $http, Crud) ->
   

@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giFloat'
+angular.module('gi.ui').directive 'giFloat'
 , [ () ->
   intRegex =  /^\-?\d+((\.|\,)\d+)?$/
   

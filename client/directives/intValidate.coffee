@@ -1,4 +1,4 @@
-angular.module('gint.ui').directive 'giInteger'
+angular.module('gi.ui').directive 'giInteger'
 , [ () ->
   intRegex = /^\-?\d+$/
   
