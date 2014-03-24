@@ -9,7 +9,7 @@ angular.module('gi.ui').directive 'giDtproperty'
       return
 ]
 
-angular.module('gint.ui').directive 'giDtbutton'
+angular.module('gi.ui').directive 'giDtbutton'
 , ['$compile'
 , ($compile) ->
   restrict: 'A'
@@ -24,7 +24,7 @@ angular.module('gint.ui').directive 'giDtbutton'
         scope.$emit attrs.event, scope.item[attrs.arg]
 ]
 
-angular.module('gint.ui').directive 'giDtfilter'
+angular.module('gi.ui').directive 'giDtfilter'
 , ['$compile'
 , ($compile) ->
   restrict: 'A'
@@ -35,7 +35,7 @@ angular.module('gint.ui').directive 'giDtfilter'
       return
 ]
 
-angular.module('gint.ui').directive 'giDtpropertyfilter'
+angular.module('gi.ui').directive 'giDtpropertyfilter'
 , ['$compile'
 , ($compile) ->
   restrict: 'A'
@@ -46,7 +46,7 @@ angular.module('gint.ui').directive 'giDtpropertyfilter'
       return
 ]
 
-angular.module('gint.ui').controller 'gintuidtitemcontroller'
+angular.module('gi.ui').controller 'giuidtitemcontroller'
 , [ '$scope', '$element'
 , ($scope, $element) ->
     $scope.$watch () ->
@@ -59,7 +59,7 @@ angular.module('gint.ui').controller 'gintuidtitemcontroller'
     , true
 ]
 
-angular.module('gint.ui').directive 'gintuidtitem'
+angular.module('gi.ui').directive 'giuidtitem'
 , [ '$compile'
 , ($compile) ->
 
@@ -100,13 +100,13 @@ angular.module('gint.ui').directive 'gintuidtitem'
   scope:
     item: '='
     columns: '='
-  controller: 'gintuidtitemcontroller'
+  controller: 'giuidtitemcontroller'
   compile: () ->
     (scope, element) ->
       render(element, scope)
 ]
 
-angular.module('gint.ui').directive 'giDatatable'
+angular.module('gi.ui').directive 'giDatatable'
 , [ '$filter', '$timeout', '$compile'
 , ($filter, $timeout, $compile) ->
   restrict: 'E'

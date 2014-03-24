@@ -26,9 +26,6 @@
   "bugs": {
     "url": "https://github.com/GoIncremental/gi-ui/issues"
   },
-  "bin": {
-    "gi-ui": "gi-ui.js"
-  },
   "directories": {
     "example": "example"
   },

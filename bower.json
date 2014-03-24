@@ -6,7 +6,7 @@
     "angular": "1.2.14",
     "angular-resource": "1.2.14",
     "angular-touch": "1.2.14",
-    "gint-util": "git@github.com:Gintellect/gint-util.git#dal"
+    "gi-util": "~0.3.5"
   },
   "dependencies": {
     "blueimp-file-upload": "~8.9.0",
