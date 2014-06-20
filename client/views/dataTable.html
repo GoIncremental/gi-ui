@@ -23,7 +23,8 @@
             ng-click="selectRow(item)" 
             gi-dt-item item="item" 
             columns="options.columns"
-            ng-class="{info: item.selected}">
+            ng-class="{info: item.selected}"
+            class="{{item[options.idField]}}">
         </tr>
       </tbody>
       <tfoot>
