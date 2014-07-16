@@ -19,15 +19,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="item in pagedItems[currentPage]" 
-            ng-click="selectRow(item)" 
-            gi-dt-item item="item" 
+        <tr ng-repeat="item in pagedItems[currentPage]"
+            ng-click="selectRow(item)"
+            gi-dt-item item="item"
             columns="options.columns"
             ng-class="{info: item.selected}"
             class="{{item[options.idField]}}">
         </tr>
       </tbody>
-      <tfoot>
+      <tfoot ng-show="pagedItems.length > 1">
         <td colspan="{{ options.columns.length }} ">
           <div class="pull-right">
             <ul class="pagination">

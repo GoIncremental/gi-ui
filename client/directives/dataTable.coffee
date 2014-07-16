@@ -116,14 +116,14 @@ angular.module('gi.ui').directive 'giDatatable'
     aPromise = null
     $scope.filteredItems = []
     $scope.groupedItems = []
-    $scope.itemsPerPage = 20
+    $scope.itemsPerPage = ($scope.options.itemsPerPage || 20)
     $scope.pagedItems = []
     $scope.currentPage = 0
     $scope.selectAll = "All"
 
     $scope.$watch 'items.length', () ->
       refresh()
-    
+
     #refresh on new query, after a delay
     $scope.$watch 'query', () ->
       if aPromise
@@ -144,7 +144,7 @@ angular.module('gi.ui').directive 'giDatatable'
         else
           start = 0
           end = 0
-    
+
         total = $scope.filteredItems.length
         $scope.countMessage = "Showing " + start + " to " +  end +
         " of " + total
@@ -171,7 +171,7 @@ angular.module('gi.ui').directive 'giDatatable'
           #we're not searching for anything - so return true
           if not $scope.query
             return true
-          
+
           found = false
           angular.forEach $scope.options.columns, (column) ->
             if not found
