@@ -847,6 +847,54 @@ angular.module('gi.ui').directive('giFileupload', [
   }
 ]);
 
+angular.module('gi.ui').run([
+  '$window', '$rootScope', function($window, $rootScope) {
+    $window.gi_ui_gplusApiLoaded = function() {
+      return $rootScope.$broadcast('google-api-loaded');
+    };
+    return $window.gi_ui_gplusLoginCallback = function(authResult) {
+      if (authResult && authResult.access_token) {
+        return $rootScope.$broadcast('event:google-plus-login-success', authResult);
+      } else {
+        return $rootScope.$broadcast('event:google-plus-login-failure', authResult);
+      }
+    };
+  }
+]);
+
+angular.module('gi.ui').directive('giLoginWithGoogle', function() {
+  var ending;
+  ending = /\.apps\.googleusercontent\.com$/;
+  return {
+    restrict: 'E',
+    template: '<span></span>',
+    replace: true,
+    link: function($scope, element, attrs) {
+      var options, po, s;
+      if (!ending.test(attrs.clientid)) {
+        attrs.clientid += '.apps.googleusercontent.com';
+      }
+      options = {
+        callback: 'gi_ui_gplusLoginCallback',
+        cookiepolicy: 'single_host_origin',
+        requestvisibleactions: 'http://schemas.google.com/AddActivity',
+        scope: 'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email',
+        width: 'wide',
+        clientid: attrs['clientid']
+      };
+      po = document.createElement('script');
+      po.type = 'text/javascript';
+      po.async = true;
+      po.src = 'https://apis.google.com/js/client:plusone.js?onload=gi_ui_gplusApiLoaded';
+      s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(po, s);
+      return $scope.$on('google-api-loaded', function() {
+        return gapi.signin.render(element[0], options);
+      });
+    }
+  };
+});
+
 angular.module('gi.ui').directive('giMin', [
   function() {
     return {

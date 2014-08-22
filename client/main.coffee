@@ -5,6 +5,7 @@ require
     'directives/dataTable2': deps: ['index']
     'directives/select2': deps: ['index']
     'directives/fileUpload': deps: ['index']
+    'directives/loginWithGoogle': deps: ['index']
     'directives/minValidate': deps: ['index']
     'directives/maxValidate': deps: ['index']
     'directives/intValidate': deps: ['index']
@@ -18,6 +19,7 @@ require
     'directives/dataTable'
     'directives/select2'
     'directives/fileUpload'
+    'directives/loginWithGoogle'
     'directives/minValidate'
     'directives/maxValidate'
     'directives/intValidate'

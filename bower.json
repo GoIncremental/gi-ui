@@ -11,7 +11,8 @@
   "dependencies": {
     "blueimp-file-upload": "~8.9.0",
     "jquery-ui": "~1.10.3",
-    "jquery": "~2.0.3"
+    "jquery": ">2.1.0",
+    "gi-util": "~0.3.11"
   },
   "homepage": "https://github.com/GoIncremental/gi-ui",
   "authors": [
