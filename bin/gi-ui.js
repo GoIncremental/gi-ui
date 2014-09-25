@@ -326,7 +326,12 @@ angular.module('gi.ui').directive('giDatatable', [
           $scope.options.refreshRequired = false;
         };
         selectionChanged = function(item) {
-          $scope.$emit('selectionChanged', item);
+          var eventName;
+          eventName = 'selectionChanged';
+          if ($scope.options.eventName != null) {
+            eventName = $scope.options.eventName;
+          }
+          $scope.$emit(eventName, item);
           if (!$scope.options.multi) {
             angular.forEach($scope.items, function(other) {
               if (item._id !== other._id) {

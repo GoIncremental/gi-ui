@@ -113,6 +113,7 @@ angular.module('gi.ui').directive 'giDatatable'
     items: '='
     options: '='
   link: ($scope, elem, attrs) ->
+
     aPromise = null
     $scope.filteredItems = []
     $scope.groupedItems = []
@@ -223,7 +224,11 @@ angular.module('gi.ui').directive 'giDatatable'
       return
 
     selectionChanged = (item) ->
-      $scope.$emit 'selectionChanged', item
+      eventName = 'selectionChanged'
+      if $scope.options.eventName?
+        eventName = $scope.options.eventName
+
+      $scope.$emit eventName, item
       unless $scope.options.multi
         angular.forEach $scope.items, (other) ->
           if item._id isnt other._id
