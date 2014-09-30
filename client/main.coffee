@@ -8,6 +8,7 @@ require
     'directives/loginWithGoogle': deps: ['index']
     'directives/minValidate': deps: ['index']
     'directives/maxValidate': deps: ['index']
+    'directives/overflow': deps: ['index']
     'directives/intValidate': deps: ['index']
     'directives/floatValidate': deps: ['index']
     'services/fileManager': deps: ['index']
@@ -22,6 +23,7 @@ require
     'directives/loginWithGoogle'
     'directives/minValidate'
     'directives/maxValidate'
+    'directives/overflow'
     'directives/intValidate'
     'directives/floatValidate'
     'filters/shorten'

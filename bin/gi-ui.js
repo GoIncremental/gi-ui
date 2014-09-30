@@ -960,6 +960,81 @@ angular.module('gi.ui').directive('giMax', [
   }
 ]);
 
+angular.module('gi.ui').directive('giOverflow', [
+  '$timeout', '$window', function($timeout, $window) {
+    return {
+      restrict: 'A',
+      scope: {
+        giOverflow: '='
+      },
+      link: function(scope, elem, attrs) {
+        var buildEllipsis, isOverflow, isTruncated, showingAll, toggle;
+        isTruncated = false;
+        showingAll = false;
+        isOverflow = function(e) {
+          return e[0].scrollHeight > e[0].clientHeight;
+        };
+        buildEllipsis = function() {
+          var appendLess, appendMore, bindArray, bindArrayStartingLength, ellipsisSymbol, initialMaxHeight, needsFlow;
+          isTruncated = false;
+          if (scope.giOverflow != null) {
+            bindArray = scope.giOverflow.split(" ");
+            ellipsisSymbol = "...";
+            appendMore = '<br/><br/><p class="gi-over gi-over-more"><span>Show More</span></p>';
+            appendLess = '<br/><br/><p class="gi-over gi-over-less"><span>Show Less</span></p>';
+            elem.html(scope.giOverflow);
+            if (isOverflow(elem)) {
+              needsFlow = true;
+              bindArrayStartingLength = bindArray.length;
+              initialMaxHeight = elem[0].clientHeight;
+              elem.html(scope.ngBind + ellipsisSymbol + appendMore);
+              while ((!isTruncated) && bindArray.length > 0) {
+                bindArray.pop();
+                elem.html(bindArray.join(" ") + ellipsisSymbol + appendMore);
+                if ((elem[0].scrollHeight < initialMaxHeight) || (!isOverflow(elem))) {
+                  isTruncated = true;
+                }
+              }
+            } else if (showingAll) {
+              elem.html(scope.giOverflow + appendLess);
+            }
+            return elem.find('span').bind("click", function(e) {
+              return scope.$apply(toggle());
+            });
+          }
+        };
+        attrs.lastWindowResizeTime = 0;
+        attrs.lastWindowResizeWidth = 0;
+        attrs.lastWindowResizeHeight = 0;
+        attrs.lastWindowTimeoutEvent = null;
+        scope.$watch('overflow', function() {
+          return buildEllipsis();
+        });
+        toggle = function() {
+          if (showingAll) {
+            showingAll = false;
+            elem.removeClass('showall');
+          } else {
+            showingAll = true;
+            elem.addClass('showall');
+          }
+          return buildEllipsis();
+        };
+        return angular.element($window).bind('resize', function() {
+          $timeout.cancel(attrs.lastWindowTimeoutEvent);
+          return attrs.lastWindowTimeoutEvent = $timeout(function() {
+            if (attrs.lastWindowResizeWidth !== $window.innerWidth || attrs.lastWindowResizeHeight !== $window.innerHeight) {
+              buildEllipsis();
+            }
+            attrs.lastWindowResizeWidth = $window.innerWidth;
+            return attrs.lastWindowResizeHeight = $window.innerHeight;
+          }, 75);
+        });
+      }
+    };
+  }
+]);
+
 angular.module('gi.ui').directive('giInteger', [
   function() {
     var intRegex;
