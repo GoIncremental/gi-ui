@@ -1,4 +1,3 @@
-
 angular.module('gi.ui', ['gi.util']);
 
 angular.module('gi.ui').directive('giModal', [
@@ -980,8 +979,8 @@ angular.module('gi.ui').directive('giOverflow', [
           if (scope.giOverflow != null) {
             bindArray = scope.giOverflow.split(" ");
             ellipsisSymbol = "...";
-            appendMore = '<br/><br/><p class="gi-over gi-over-more"><span>Show More</span></p>';
-            appendLess = '<br/><br/><p class="gi-over gi-over-less"><span>Show Less</span></p>';
+            appendMore = '<br/><br/><p class="gi-over gi-over-more"><span><a href="#">Show more <span class="glyphicon glyphicon-arrow-down"></span></a></span></p>';
+            appendLess = '<br/><br/><p class="gi-over gi-over-less"><span><a href="#">Show less <span class="glyphicon glyphicon-arrow-up"></a></span></p>';
             elem.html(scope.giOverflow);
             if (isOverflow(elem)) {
               needsFlow = true;
