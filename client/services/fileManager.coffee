@@ -1,15 +1,15 @@
 angular.module('gi.ui').factory 'giFileManager'
 , ['$q', '$http', 'giCrud'
 , ($q, $http, Crud) ->
-  
-  crudService = Crud.factory 'files', true
-  
+
+  crudService = Crud.factory 'files'
+
   getPath = (parent) ->
     deferred = $q.defer()
     getCDN().then (cdn) ->
       path = cdn + '/public/images/' +
       parent.resourceType + '/'+ parent.key + '/'
-      
+
       deferred.resolve path
     deferred.promise
 
@@ -34,15 +34,14 @@ angular.module('gi.ui').factory 'giFileManager'
       console.log 'something went wrong getting CDN'
       deferred.resolve()
     )
-    
+
     deferred.promise
-  
+
   save = (file, parent, formData) ->
     deferred = $q.defer()
     console.log 'about to save file with alternates'
     console.log file.s3alternates
     getPath(parent).then (path) ->
-      console.log 'bob1'
       fileInfo =
         name: file.name
         parentId: parent.key
@@ -54,17 +53,16 @@ angular.module('gi.ui').factory 'giFileManager'
         s3alternates: file.s3alternates
 
       crudService.save(fileInfo).then (result) ->
-        console.log 'bob2'
         console.log 'file is saved in mongo'
         result.thumb = path + 'thumb/' + file.name
         deferred.resolve result
 
     deferred.promise
-  
+
   getToken = (file, parent, type) ->
 
     deferred = $q.defer()
-   
+
     data =
       filename: file.name
       contentType: file.type
@@ -77,7 +75,7 @@ angular.module('gi.ui').factory 'giFileManager'
       console.log 'something went wrong getting token'
       deferred.resolve()
     )
-    
+
     deferred.promise
 
   all: crudService.all

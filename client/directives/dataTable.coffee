@@ -228,10 +228,14 @@ angular.module('gi.ui').directive 'giDatatable'
       if $scope.options.eventName?
         eventName = $scope.options.eventName
 
+      idField = '_id'
+      if $scope.options.idField?
+        idField = $scope.options.idField
+
       $scope.$emit eventName, item
       unless $scope.options.multi
         angular.forEach $scope.items, (other) ->
-          if item._id isnt other._id
+          if item[idField] isnt other[idField]
             other.selected = false
       $scope.selectedItems = $filter('filter')(
         $scope.items, (item) ->

@@ -1,3 +1,4 @@
+
 angular.module('gi.ui', ['gi.util']);
 
 angular.module('gi.ui').directive('giModal', [
@@ -325,15 +326,19 @@ angular.module('gi.ui').directive('giDatatable', [
           $scope.options.refreshRequired = false;
         };
         selectionChanged = function(item) {
-          var eventName;
+          var eventName, idField;
           eventName = 'selectionChanged';
           if ($scope.options.eventName != null) {
             eventName = $scope.options.eventName;
           }
+          idField = '_id';
+          if ($scope.options.idField != null) {
+            idField = $scope.options.idField;
+          }
           $scope.$emit(eventName, item);
           if (!$scope.options.multi) {
             angular.forEach($scope.items, function(other) {
-              if (item._id !== other._id) {
+              if (item[idField] !== other[idField]) {
                 return other.selected = false;
               }
             });
@@ -1098,7 +1103,7 @@ angular.module('gi.ui').filter('giShorten', [
 angular.module('gi.ui').factory('giFileManager', [
   '$q', '$http', 'giCrud', function($q, $http, Crud) {
     var crudService, forParent, getCDN, getPath, getToken, save;
-    crudService = Crud.factory('files', true);
+    crudService = Crud.factory('files');
     getPath = function(parent) {
       var deferred;
       deferred = $q.defer();
@@ -1144,7 +1149,6 @@ angular.module('gi.ui').factory('giFileManager', [
       console.log(file.s3alternates);
       getPath(parent).then(function(path) {
         var fileInfo;
-        console.log('bob1');
         fileInfo = {
           name: file.name,
           parentId: parent.key,
@@ -1156,7 +1160,6 @@ angular.module('gi.ui').factory('giFileManager', [
           s3alternates: file.s3alternates
         };
         return crudService.save(fileInfo).then(function(result) {
-          console.log('bob2');
           console.log('file is saved in mongo');
           result.thumb = path + 'thumb/' + file.name;
           return deferred.resolve(result);
