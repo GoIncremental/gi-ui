@@ -14,14 +14,27 @@ angular.module('gi.ui').directive 'giDtbutton'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<button class="btn btn-info" ng-click="click()">' +
+    body = '<button class="btn btn-info" ng-click="click($event)">' +
     attrs.text + '</button>'
     element.append(body)
 
     #compile returns a linking function
     (scope, elem, attrs) ->
-      scope.click = () ->
+      scope.click = ($event) ->
+        $event.originalEvent.cancelBubble = true;
         scope.$emit attrs.event, scope.item[attrs.arg]
+]
+
+angular.module('gi.ui').directive 'giDtcheckbox'
+, ['$compile'
+, ($compile) ->
+  restrict: 'A'
+  compile: (element, attrs) ->
+    body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="click($event)" />'
+    element.append(body)
+    (scope, elem, attrs) ->
+      scope.click = ($event) ->
+        $event.originalEvent.cancelBubble = true;
 ]
 
 angular.module('gi.ui').directive 'giDtfilter'
@@ -90,6 +103,8 @@ angular.module('gi.ui').directive 'giDtItem'
             attrsObj.text = column.text
             attrsObj.event = column.eventName
             attrsObj.arg = column.property
+          when 'gi-dtcheckbox'
+            attrsObj[column.type] = column.property
 
         html = $compile(createTdProperty(attrsObj))(scope)
         element.append(html)
