@@ -1,4 +1,3 @@
-
 angular.module('gi.ui', ['gi.util']);
 
 angular.module('gi.ui').directive('giModal', [
@@ -76,11 +75,30 @@ angular.module('gi.ui').directive('giDtbutton', [
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '<button class="btn btn-info" ng-click="click()">' + attrs.text + '</button>';
+        body = '<button class="btn btn-info" ng-click="click($event)">' + attrs.text + '</button>';
         element.append(body);
         return function(scope, elem, attrs) {
-          return scope.click = function() {
+          return scope.click = function($event) {
+            $event.originalEvent.cancelBubble = true;
             return scope.$emit(attrs.event, scope.item[attrs.arg]);
+          };
+        };
+      }
+    };
+  }
+]);
+
+angular.module('gi.ui').directive('giDtcheckbox', [
+  '$compile', function($compile) {
+    return {
+      restrict: 'A',
+      compile: function(element, attrs) {
+        var body;
+        body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="click($event)" />';
+        element.append(body);
+        return function(scope, elem, attrs) {
+          return scope.click = function($event) {
+            return $event.originalEvent.cancelBubble = true;
           };
         };
       }
@@ -169,6 +187,9 @@ angular.module('gi.ui').directive('giDtItem', [
               attrsObj.text = column.text;
               attrsObj.event = column.eventName;
               attrsObj.arg = column.property;
+              break;
+            case 'gi-dtcheckbox':
+              attrsObj[column.type] = column.property;
           }
           html = $compile(createTdProperty(attrsObj))(scope);
           _results.push(element.append(html));
