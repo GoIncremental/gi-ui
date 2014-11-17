@@ -14,7 +14,7 @@ angular.module('gi.ui').directive 'giDtbutton'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<button class="btn btn-info" ng-click="click($event)">' +
+    body = '<button class="btn btn-xs btn-info" ng-click="click($event)">' +
     attrs.text + '</button>'
     element.append(body)
 
