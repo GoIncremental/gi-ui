@@ -314,4 +314,11 @@ angular.module('gi.ui').directive 'giDatatable'
     $scope.setPage = (n) ->
       $scope.currentPage = n
 
+    $scope.applyFormatting = (item) ->
+      cls = ""
+      if $scope.options.formatter?
+        cls = $scope.options.formatter item
+        cls = cls.replace(/\"/g, "");
+        cls = cls.replace(/\'/g, "");
+      cls
 ]
