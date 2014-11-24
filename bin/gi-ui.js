@@ -1,3 +1,4 @@
+
 angular.module('gi.ui', ['gi.util']);
 
 angular.module('gi.ui').directive('giModal', [
