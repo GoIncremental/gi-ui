@@ -15,7 +15,10 @@
       <thead>
         <tr>
           <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th>
-          <th ng-repeat="column in options.columns">{{column.header}}</th>
+          <th ng-repeat="column in options.columns" ng-click="columnSort(column.property)">
+            {{column.header}}
+            <i class="glyphicon" ng-class="{ 'glyphicon-chevron-up': options.sortDirection == 'desc', 'glyphicon-chevron-down': options.sortDirection == 'asc' }" ng-show="options.sortProperty == column.property"></i>
+          </th>
         </tr>
       </thead>
       <tbody>
