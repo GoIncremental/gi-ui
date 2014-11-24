@@ -321,4 +321,14 @@ angular.module('gi.ui').directive 'giDatatable'
         cls = cls.replace(/\"/g, "");
         cls = cls.replace(/\'/g, "");
       cls
+
+    $scope.columnSort = (property) ->
+      if $scope.options.sortable
+        if $scope.options.sortProperty is property
+          # Swap the direction
+          $scope.options.sortDirection = if $scope.options.sortDirection is "asc" then "desc" else "asc"
+        else
+          $scope.options.sortProperty = property
+          $scope.options.sortDirection = "asc"
+        refresh()
 ]

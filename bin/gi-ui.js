@@ -1,4 +1,3 @@
-
 angular.module('gi.ui', ['gi.util']);
 
 angular.module('gi.ui').directive('giModal', [
@@ -437,7 +436,7 @@ angular.module('gi.ui').directive('giDatatable', [
         $scope.setPage = function(n) {
           return $scope.currentPage = n;
         };
-        return $scope.applyFormatting = function(item) {
+        $scope.applyFormatting = function(item) {
           var cls;
           cls = "";
           if ($scope.options.formatter != null) {
@@ -446,6 +445,17 @@ angular.module('gi.ui').directive('giDatatable', [
             cls = cls.replace(/\'/g, "");
           }
           return cls;
+        };
+        return $scope.columnSort = function(property) {
+          if ($scope.options.sortable) {
+            if ($scope.options.sortProperty === property) {
+              $scope.options.sortDirection = $scope.options.sortDirection === "asc" ? "desc" : "asc";
+            } else {
+              $scope.options.sortProperty = property;
+              $scope.options.sortDirection = "asc";
+            }
+            return refresh();
+          }
         };
       }
     };
@@ -1226,7 +1236,7 @@ angular.module('gi.ui').factory('giFileManager', [
 ]);
 
 angular.module('gi.ui').run(['$templateCache', function ($templateCache) {
-	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ countMessage }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table {{ (!options.formatter)?\'table-striped\':\'\'}} table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> <th ng-repeat="column in options.columns">{{column.header}}</th> </tr> </thead> <tbody> <tr ng-repeat="item in pagedItems[currentPage]" ng-click="selectRow(item)" gi-dt-item item="item" columns="options.columns" ng-class="{info: item.selected}" class="{{item[options.idField] + \' \' + applyFormatting(item) }}"> </tr> </tbody> <tfoot ng-show="pagedItems.length> 1"> <td colspan="{{ options.columns.length }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div> ');
+	$templateCache.put('/views/dataTable.html', '<div class="row"> <div class="col-md-6"> <div ng-show="options.displayCounts"> {{ countMessage }} </div> </div> <div class="col-md-6" ng-hide="options.disableSearch"> <input class="search-query pull-right" placeholder="Search" ng-model="query"> </div> </div> <div class="row"> <div class="col-md-12"> <table class="table {{ (!options.formatter)?\'table-striped\':\'\'}} table-condensed table-hover"> <thead> <tr> <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th> <th ng-repeat="column in options.columns" ng-click="columnSort(column.property)"> {{column.header}} <i class="glyphicon" ng-class="{ \'glyphicon-chevron-up\': options.sortDirection==\'desc\', \'glyphicon-chevron-down\': options.sortDirection==\'asc\' }" ng-show="options.sortProperty==column.property"></i> </th> </tr> </thead> <tbody> <tr ng-repeat="item in pagedItems[currentPage]" ng-click="selectRow(item)" gi-dt-item item="item" columns="options.columns" ng-class="{info: item.selected}" class="{{item[options.idField] + \' \' + applyFormatting(item) }}"> </tr> </tbody> <tfoot ng-show="pagedItems.length> 1"> <td colspan="{{ options.columns.length }} "> <div class="pull-right"> <ul class="pagination"> <li ng-class="{disabled: currentPage==0}"> <a href ng-click="prevPage()">« Prev</a> </li> <li ng-repeat="n in range(currentPage)" ng-class="{active: n==currentPage}" ng-click="setPage(n)"> <a href ng-click="setPage(n)" ng-bind="n + 1"></a> </li> <li ng-class="{disabled: currentPage==pagedItems.length - 2}"> <a href ng-click="nextPage()">Next »</a> </li> </ul> </div> </td> </tfoot> </table> </div> </div> ');
 	$templateCache.put('/views/fileUpload.html', '<form> <div class="row-fluid fileupload-buttonbar"> <div class="col-md-7"> <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>{{addText}}</span> <input id="fileupload" type="file" name="file" multiple> </span> </div> <div class="span5 fileupload-progress fade"> <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100"> <div class="bar" style="width:0%;"></div> </div> <div class="progress-extended">&nbsp;</div> </div> </div> <table class="table table-striped"> <thead> <tr> <th></th> <th>Name</th> <th>Size</th> <th>Primary</th> <th>Exclude From Detail</th> <th>Order</th> <th></th> <th></th> <th></th> </tr> </thead> <tbody class="files"> <tr ng-repeat="f in erroredFiles"> <td></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td colspan="2"><span class="label label-important error">{{f.errorMessage}}</span></td> </tr> <tr ng-repeat="f in pendingFiles"> <td><image-preview file="f"></image-preview></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromQueue(f)" class="btn btn-warning"> <i class="icon-trash icon-white"></i> <span>Cancel</span> </button></td> </tr> <tr ng-repeat="f in uploadedFiles"> <td><img ng-src="{{f.thumb}}"></td> <td>{{f.name}}</td> <td>{{formatFileSize(f.size)}}</td> <td><input type="radio" name="primary" ng-checked="f.primary"></td> <td><input type="checkbox" ng-model="f.exclude"></td> <td><input type="number" class="input-mini" ng-model="f.order"></td> <td><button ng-click="removeFromS3(f, $event)" class="btn btn-danger"> <i class="icon-trash icon-white"></i> <span>Remove</span> </button></td> </tr> </tbody> </table> </form> ');
 	$templateCache.put('/views/modal.html', '<div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" ng-click="hide()" class="close">x</button> <h3>{{title}}</h3> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button class="btn btn-default pull-right" ng-click="hide()">Cancel</button> </div> </div> </div> ');
 	$templateCache.put('/views/select2.html', '<input type="text" class="form-control"/>');
