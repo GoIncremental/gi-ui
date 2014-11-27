@@ -225,7 +225,10 @@ angular.module('gi.ui').directive 'giDatatable'
 
         $scope.filteredItems = $filter('orderBy')($scope.filteredItems
         , (item) ->
-          item[$scope.options.sortProperty]
+          # Remove any filter from the sort property
+          ar = $scope.options.sortProperty.split("|")
+          prop = ar[0].trim()
+          item[prop]
         , sortDir )
 
       if $scope.options.customSort
