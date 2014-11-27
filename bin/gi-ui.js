@@ -334,7 +334,10 @@ angular.module('gi.ui').directive('giDatatable', [
               sortDir = true;
             }
             $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-              return item[$scope.options.sortProperty];
+              var ar, prop;
+              ar = $scope.options.sortProperty.split("|");
+              prop = ar[0].trim();
+              return item[prop];
             }, sortDir);
           }
           if ($scope.options.customSort) {
