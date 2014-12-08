@@ -1049,6 +1049,7 @@ angular.module('gi.ui').directive('giOverflow', [
               elem.html(scope.giOverflow + appendLess);
             }
             return elem.find('span').bind("click", function(e) {
+              e.preventDefault();
               return scope.$apply(toggle());
             });
           }

@@ -40,6 +40,7 @@ angular.module('gi.ui').directive 'giOverflow'
 
 
         elem.find('span').bind "click", (e) ->
+          e.preventDefault()
           scope.$apply(toggle())
 
     attrs.lastWindowResizeTime = 0
