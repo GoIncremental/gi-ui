@@ -1,0 +1,58 @@
+<link rel="import" href="../../bower_modules/polymer/polymer.html">
+
+<polymer-element name="gi-databind">
+
+
+<template>
+	<style>
+
+		h2 {
+			font-family: Helvetica;
+			font-size: 2.4em ;
+			font-weight: lighter;
+		}
+
+		.name {
+			color: red;
+		}
+
+		input {
+
+			height: 50px;
+			border: 1px #e5e5e5 solid;
+			border-radius: 5px;
+			padding: 10px;
+			font-size: 1.5em;
+		}
+	</style>
+	
+
+	<h2 > Hello <span class="name"> {{user}} </span>! </h2>
+	<input type="text" id="nameInput" placeholder="Enter A Name" on-keyup="{{input}}">
+
+
+
+</template>
+<script>
+	
+	Polymer('gi-databind', {
+      // initialize the element's model
+      ready: function() {
+
+      },
+
+
+      input: function(){
+      	this.user = this.$.nameInput.value;
+
+
+      }});
+
+
+
+
+
+
+
+  </script>
+</polymer-element>
