@@ -1,0 +1,39 @@
+<link rel="import" href="../../bower_modules/polymer/polymer.html">
+
+<polymer-element name="gi-hello-world">
+<template>
+	<style>
+
+		/*Custom CSS for the Component*/
+		h4 {
+
+			font-family: Helvetica;
+			font-size: 2em;
+			font-weight: lighter;
+			padding-top: 15px;
+			position: absolute;
+
+
+		} 
+	</style>
+
+	<!-- Content -->
+	
+	<div class="hello-header" id="hellobox">
+		<h4 > Hi there </h4>
+	</div>
+
+</template>
+<!-- JS for the Component -->
+<script>
+	Polymer({});
+
+	sel = document.getElementById("hellobox");
+	sel.addEventListener("click", function(){
+
+		sel.style.border = "1px solid red";
+		sel.style.paddingTop = "0";
+
+	}, false );
+</script>
+</polymer-element>

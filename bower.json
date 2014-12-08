@@ -7,24 +7,25 @@
     "angular-resource": "1.2.14",
     "angular-touch": "1.2.14",
     "gi-util": "~0.3.5"
-  },
-  "dependencies": {
-    "blueimp-file-upload": "~8.9.0",
-    "jquery-ui": "~1.10.3",
-    "jquery": ">2.1.0",
-    "gi-util": "~1.0.5"
-  },
-  "homepage": "https://github.com/GoIncremental/gi-ui",
-  "authors": [
-    "David Bochenski <david@goincremental.com>"
-  ],
-  "license": "Apache 2.0",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "bower_modules",
-    "test",
-    "tests"
-  ]
-}
+    },
+    "dependencies": {
+      "blueimp-file-upload": "~8.9.0",
+      "jquery-ui": "~1.10.3",
+      "jquery": ">2.1.0",
+      "gi-util": "~1.0.5",
+      "polymer": "Polymer/polymer#~0.5.1"
+      },
+      "homepage": "https://github.com/GoIncremental/gi-ui",
+      "authors": [
+      "David Bochenski <david@goincremental.com>"
+      ],
+      "license": "Apache 2.0",
+      "ignore": [
+      "**/.*",
+      "node_modules",
+      "bower_components",
+      "bower_modules",
+      "test",
+      "tests"
+      ]
+    }
