@@ -137,7 +137,7 @@ angular.module('gi.ui').directive 'giDatatable'
     $scope.currentPage = 0
     $scope.selectAll = "All"
 
-    $scope.$watch 'items.length', () ->
+    $scope.$watch 'items', () ->
       refresh()
 
     #refresh on new query, after a delay

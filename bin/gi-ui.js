@@ -234,7 +234,7 @@ angular.module('gi.ui').directive('giDatatable', [
         $scope.pagedItems = [];
         $scope.currentPage = 0;
         $scope.selectAll = "All";
-        $scope.$watch('items.length', function() {
+        $scope.$watch('items', function() {
           return refresh();
         });
         $scope.$watch('query', function() {
