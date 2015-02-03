@@ -35,7 +35,7 @@
             ng-class="{info: subItem.selected, hide: item._hide}"
             class="{{subItem[options.idField] + ' ' + applyFormatting(subItem) }}">
         </tr>
-        <tr ng-if="!!options.groupDataProperty">
+        <tr ng-if="!!options.groupDataProperty" ng-class=" { 'group-footer': true, 'hide': item._hide }">
           <td ng-repeat="col in options.columns">
             {{ showSum(item[options.groupDataProperty], col) }}
           </td>
