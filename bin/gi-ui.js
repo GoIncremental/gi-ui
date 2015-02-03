@@ -235,7 +235,7 @@ angular.module('gi.ui').directive('giDatatable', [
         $scope.selectAll = "All";
         $scope.$watch('items', function() {
           return refresh();
-        });
+        }, true);
         $scope.$watch('query', function() {
           if (aPromise) {
             $timeout.cancel(aPromise);
