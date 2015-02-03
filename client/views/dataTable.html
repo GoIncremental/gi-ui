@@ -21,7 +21,27 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody ng-repeat="item in pagedItems[currentPage]" ng-if="!!options.groupDataProperty">
+        <tr>
+          <td class="group-header" colspan="{{ options.columns.length }}">
+            <span ng-class="{ 'glyphicon': true, 'glyphicon-plus-sign': !!item._hide, 'glyphicon-minus-sign': !item._hide }" ng-click="item._hide = !item._hide"></span>
+            {{ item[options.groupName] }}
+          </td>
+        </tr>
+        <tr ng-repeat="subItem in item[options.groupDataProperty]"
+            ng-click="selectRow(item)"
+            gi-dt-item item="subItem"
+            columns="options.columns"
+            ng-class="{info: subItem.selected, hide: item._hide}"
+            class="{{subItem[options.idField] + ' ' + applyFormatting(subItem) }}">
+        </tr>
+        <tr ng-if="!!options.groupDataProperty">
+          <td ng-repeat="col in options.columns">
+            {{ showSum(item[options.groupDataProperty], col) }}
+          </td>
+        </tr>
+      </tbody>
+      <tbody ng-if="!options.groupDataProperty">
         <tr ng-repeat="item in pagedItems[currentPage]"
             ng-click="selectRow(item)"
             gi-dt-item item="item"
