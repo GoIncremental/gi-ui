@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.
 
 ### Release Notes
+v0.3.8
+- Added grouping functionality
+
 v0.3.7
 - Fixed issue where datatable would not refresh if new list had same length
 

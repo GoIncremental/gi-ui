@@ -1,6 +1,6 @@
 {
   "name": "gi-ui",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "main": "./bin/gi-ui.js",
   "devDependencies": {
     "angular": "1.2.14",
