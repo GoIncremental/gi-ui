@@ -325,6 +325,27 @@ angular.module('gi.ui').directive 'giDatatable'
         cls = cls.replace(/\'/g, "");
       cls
 
+    $scope.showSum = (data, col) ->
+
+      prop = (item, path) ->
+        path = path.split("|")[0].trim()
+        ar = path.split "."
+        ref = item
+        for p in ar
+          ref = ref[p]
+        ref
+
+      output = ""
+
+      if col.sum is true
+        sum = 0
+        for item in data
+          val = prop item, col.property
+          sum += val
+        output = sum
+
+      output
+
     $scope.columnSort = (property) ->
       if $scope.options.sortable
         if $scope.options.sortProperty is property
