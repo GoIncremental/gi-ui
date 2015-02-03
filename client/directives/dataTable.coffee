@@ -139,6 +139,7 @@ angular.module('gi.ui').directive 'giDatatable'
 
     $scope.$watch 'items', () ->
       refresh()
+    , $scope.options.deepWatch
 
     #refresh on new query, after a delay
     $scope.$watch 'query', () ->
