@@ -22,7 +22,7 @@ angular.module('gi.ui').directive 'giDtbutton'
     (scope, elem, attrs) ->
       scope.click = ($event) ->
         $event.originalEvent.cancelBubble = true;
-        scope.$emit attrs.event, scope.item[attrs.arg]
+        scope.$emit attrs.event, scope.item[attrs.arg] || scope.item
 ]
 
 angular.module('gi.ui').directive 'giDtcheckbox'
