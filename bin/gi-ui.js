@@ -80,7 +80,7 @@ angular.module('gi.ui').directive('giDtbutton', [
         return function(scope, elem, attrs) {
           return scope.click = function($event) {
             $event.originalEvent.cancelBubble = true;
-            return scope.$emit(attrs.event, scope.item[attrs.arg]);
+            return scope.$emit(attrs.event, scope.item[attrs.arg] || scope.item);
           };
         };
       }
