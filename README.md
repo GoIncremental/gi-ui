@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.
 
 ### Release Notes
+v0.3.10
+- Optionally allow returning of full object from button click event in dataTable
+
 v0.3.9
 - Added deep watch option to trigger refresh
 
