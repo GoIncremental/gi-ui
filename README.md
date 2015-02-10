@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.
 
 ### Release Notes
+v0.3.11
+- Added DP option for summed columns and added ability to specify class styles
+
 v0.3.10
 - Optionally allow returning of full object from button click event in dataTable
 
