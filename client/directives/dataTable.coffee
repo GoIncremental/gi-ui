@@ -98,6 +98,7 @@ angular.module('gi.ui').directive 'giDtItem'
         switch column.type
           when 'gi-dtproperty', 'gi-dtfilter', 'gi-dtpropertyfilter'
             attrsObj[column.type] = column.property
+            attrsObj.class = column.class || ""
           when 'gi-dtbutton'
             attrsObj[column.type] = null
             attrsObj.text = column.text
@@ -328,6 +329,7 @@ angular.module('gi.ui').directive 'giDatatable'
 
     $scope.showSum = (data, col) ->
 
+      dp = col.dp || 0
       prop = (item, path) ->
         path = path.split("|")[0].trim()
         ar = path.split "."
@@ -344,6 +346,7 @@ angular.module('gi.ui').directive 'giDatatable'
           val = prop item, col.property
           sum += val
         output = sum
+        output = output.toFixed dp
 
       output
 

@@ -15,7 +15,7 @@
       <thead>
         <tr>
           <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th>
-          <th ng-repeat="column in options.columns" ng-click="columnSort(column.property)">
+          <th ng-repeat="column in options.columns" ng-click="columnSort(column.property)" ng-class="column.class">
             {{column.header}}
             <i class="glyphicon" ng-class="{ 'glyphicon-chevron-up': options.sortDirection == 'desc', 'glyphicon-chevron-down': options.sortDirection == 'asc' }" ng-show="options.sortProperty == column.property"></i>
           </th>
@@ -36,7 +36,7 @@
             class="{{subItem[options.idField] + ' ' + applyFormatting(subItem) }}">
         </tr>
         <tr ng-if="!!options.groupDataProperty" ng-class=" { 'group-footer': true, 'hide': item._hide }">
-          <td ng-repeat="col in options.columns">
+          <td ng-repeat="col in options.columns" ng-class="col.class">
             {{ showSum(item[options.groupDataProperty], col) }}
           </td>
         </tr>
