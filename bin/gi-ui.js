@@ -75,12 +75,12 @@ angular.module('gi.ui').directive('giDtbutton', [
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '<button class="btn btn-xs btn-info" ng-click="click($event)">' + attrs.text + '</button>';
+        body = '<button class="btn btn-xs btn-info" ng-click="click(\'' + attrs.event + '\', $event)">' + attrs.text + '</button>';
         element.append(body);
         return function(scope, elem, attrs) {
-          return scope.click = function($event) {
+          return scope.click = function(evName, $event, $item) {
             $event.originalEvent.cancelBubble = true;
-            return scope.$emit(attrs.event, scope.item[attrs.arg] || scope.item);
+            return scope.$emit(evName, scope.item[attrs.arg] || scope.item);
           };
         };
       }

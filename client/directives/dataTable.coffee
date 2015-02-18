@@ -14,15 +14,16 @@ angular.module('gi.ui').directive 'giDtbutton'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<button class="btn btn-xs btn-info" ng-click="click($event)">' +
+    body = '<button class="btn btn-xs btn-info" ng-click="click(\'' + attrs.event + '\', $event)">' +
     attrs.text + '</button>'
     element.append(body)
 
     #compile returns a linking function
     (scope, elem, attrs) ->
-      scope.click = ($event) ->
+      scope.click = (evName, $event, $item) ->
         $event.originalEvent.cancelBubble = true;
-        scope.$emit attrs.event, scope.item[attrs.arg] || scope.item
+        #scope.$emit attrs.event, scope.item[attrs.arg] || scope.item
+        scope.$emit evName, scope.item[attrs.arg] || scope.item
 ]
 
 angular.module('gi.ui').directive 'giDtcheckbox'
