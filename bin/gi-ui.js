@@ -94,10 +94,10 @@ angular.module('gi.ui').directive('giDtcheckbox', [
       restrict: 'A',
       compile: function(element, attrs) {
         var body;
-        body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="click($event)" />';
+        body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="check($event)" />';
         element.append(body);
         return function(scope, elem, attrs) {
-          return scope.click = function($event) {
+          return scope.check = function($event) {
             return $event.originalEvent.cancelBubble = true;
           };
         };

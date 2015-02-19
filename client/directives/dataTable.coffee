@@ -31,10 +31,10 @@ angular.module('gi.ui').directive 'giDtcheckbox'
 , ($compile) ->
   restrict: 'A'
   compile: (element, attrs) ->
-    body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="click($event)" />'
+    body = '<input type="checkbox" ng-model="item.' + attrs.giDtcheckbox + '" ng-click="check($event)" />'
     element.append(body)
     (scope, elem, attrs) ->
-      scope.click = ($event) ->
+      scope.check = ($event) ->
         $event.originalEvent.cancelBubble = true;
 ]
 
