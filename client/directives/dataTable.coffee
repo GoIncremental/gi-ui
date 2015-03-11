@@ -125,7 +125,7 @@ angular.module('gi.ui').directive 'giDatatable'
 , [ '$filter', '$timeout', '$compile'
 , ($filter, $timeout, $compile) ->
   restrict: 'E'
-  templateUrl: '/views/dataTable.html'
+  templateUrl: 'gi.ui.dataTable.html'
   scope:
     items: '='
     options: '='

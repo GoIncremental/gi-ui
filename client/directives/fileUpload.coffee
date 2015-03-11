@@ -2,7 +2,7 @@ angular.module('gi.ui').directive 'giFileupload'
 , [ '$q', 'giFileManager'
 , ($q, FileManager) ->
   restrict: 'E'
-  templateUrl: '/views/fileUpload.html'
+  templateUrl: 'gi.ui.fileUpload.html'
   scope: {
     files: '='
     parent: '='
@@ -17,7 +17,7 @@ angular.module('gi.ui').directive 'giFileupload'
     #It's nearly there at the moment, just need to sort out the progress bar
     downloadTemplate = (o) ->
       return
-    
+
     uploadTemplate = (o) ->
       scope.$apply () ->
         angular.forEach o.files, (file) ->
@@ -37,7 +37,7 @@ angular.module('gi.ui').directive 'giFileupload'
             file.preview = previews[file.name]
             scope.pendingFiles.push file
             return
-  
+
     scope.formatFileSize = (bytes) ->
       if not typeof(bytes) is 'number'
         'N/A'
@@ -51,7 +51,7 @@ angular.module('gi.ui').directive 'giFileupload'
 
     getResizedImage = (data, options) ->
       deferred = $q.defer()
-      
+
       options.canvas = true
 
       img = data.canvas || data.img
@@ -67,7 +67,7 @@ angular.module('gi.ui').directive 'giFileupload'
         that = @
         file = data.files[data.index]
         name = file.name
-    
+
         callback = (blob) ->
           if not blob.name?
             if file.type is blob.type
@@ -77,7 +77,7 @@ angular.module('gi.ui').directive 'giFileupload'
               + file.name.replace /\..+$/, '.' + blob.type.substr(6)
 
           deferred.resolve blob
-      
+
         # Use canvas.mozGetAsFile directly, to retain the filename, as
         # Gecko doesn't support the filename option for FormData.append:
         if newImg.mozGetAsFile
@@ -179,7 +179,7 @@ angular.module('gi.ui').directive 'giFileupload'
         scope.pendingFiles.splice resultIndex, 1
         previews[file.name] = null
         resized[file.name] = null
-    
+
     scope.removeFromS3 = (file, $event) ->
       $event.preventDefault() #stop this event submitting the parent form
       console.log 'remove from S3 called for:' + file.name
@@ -188,7 +188,7 @@ angular.module('gi.ui').directive 'giFileupload'
         angular.forEach scope.uploadedFiles, (f, index) ->
           if f._id is file._id
             resultIndex = index
-            
+
         unless resultIndex is -1
           scope.uploadedFiles.splice resultIndex, 1
 
@@ -233,7 +233,7 @@ angular.module('gi.ui').directive 'giFileupload'
           #When all the resized and the original file have been uploaded
           #then the done handler will have rexsolved all the promises
           deferred.resolve()
-      
+
       deferred.promise
 
 
@@ -248,7 +248,7 @@ angular.module('gi.ui').directive 'giFileupload'
 
     scope.$on 'start-file-upload', (e, parent, promise) ->
       promises = []
-      
+
       angular.forEach scope.pendingFiles, (file) ->
         promises.push uploadToS3(file)
 

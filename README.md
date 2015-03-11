@@ -1,9 +1,32 @@
 gi-ui
 -------------
 
-Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.
+Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.0.0
+- BREAKING CHANGES:
+  - Change: Switched from grunt to gulp.  Build using `gulp` instead now
+  - Deprecated: Modal - use http://angular-ui.github.io/bootstrap/ instead
+  - Deprecated: Select2 - use https://github.com/angular-ui/ui-select instead
+  - Jquery no longer required - There is no dependency on jquery any more as a result of the above two deprecations.
+  - Output folder moved from /bin to /dist
+  - Views are now all named with gi.ui.*.html to avoid clashes in importing projects
+  - to use gi-ui you must previously have loaded gi-util.  The recommended approach is to just to use https://github.com/goincremental/gi as a single import into customer projects
+
+
+- New Features / improvements
+  - Country flags are bundled as part of the css
+  - angular-ui/ui-select is bundled as part of the js and css
+  - textAngular is bundled as part of the js and css
+
+  - We now package all the css in dist/gi-ui.css
+  - We now package all the .js in dist/gi-ui.js and this file includes all the dependencies
+  - If you need to override the css, the scss files are all in /scss
+  - All font dependencies are available in dist/fonts
+  - RequireJS dependency removed
+  - There is no need for the excessively annoying client/main.coffee shim.  All dependency ordering is handled in the gulpfile.coffee
+
 v0.3.12
 - Fixes issue with multiple clickable buttons in datatable
 
