@@ -334,10 +334,20 @@ angular.module('gi.ui').directive('giDatatable', [
               sortDir = true;
             }
             $scope.filteredItems = $filter('orderBy')($scope.filteredItems, function(item) {
-              var ar, prop;
+              var ar, nestedItem, p, prop, props, _i, _len;
               ar = $scope.options.sortProperty.split("|");
               prop = ar[0].trim();
-              return item[prop];
+              if (prop.indexOf(".") === -1) {
+                return item[prop];
+              } else {
+                nestedItem = item;
+                props = prop.split(".");
+                for (_i = 0, _len = props.length; _i < _len; _i++) {
+                  p = props[_i];
+                  nestedItem = nestedItem != null ? nestedItem[p] : void 0;
+                }
+                return nestedItem;
+              }
             }, sortDir);
           }
           if ($scope.options.customSort) {

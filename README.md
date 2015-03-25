@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack.
 
 ### Release Notes
+v0.4.0
+- Added support for deep property in data table row sorting
+
 v0.3.12
 - Fixes issue with multiple clickable buttons in datatable
 
