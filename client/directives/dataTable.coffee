@@ -231,7 +231,14 @@ angular.module('gi.ui').directive 'giDatatable'
           # Remove any filter from the sort property
           ar = $scope.options.sortProperty.split("|")
           prop = ar[0].trim()
-          item[prop]
+          if prop.indexOf(".") is -1
+            item[prop]
+          else
+            nestedItem = item
+            props = prop.split "."
+            for p in props
+              nestedItem = nestedItem?[p]
+            nestedItem
         , sortDir )
 
       if $scope.options.customSort
