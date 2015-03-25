@@ -30,6 +30,9 @@ v1.0.0
   - RequireJS dependency removed
   - There is no need for the excessively annoying client/main.coffee shim.  All dependency ordering is handled in the gulpfile.coffee
 
+v0.4.0
+- Added support for deep property in data table row sorting
+
 v0.3.12
 - Fixes issue with multiple clickable buttons in datatable
 
