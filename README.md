@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.0.2
+- Upgraded to latest textAngular copmonent
+
 v1.0.1
 - Made anything needed for sass complication full bower dependencies
 
