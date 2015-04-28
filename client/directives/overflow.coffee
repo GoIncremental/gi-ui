@@ -61,8 +61,7 @@ angular.module('gi.ui').directive 'giOverflow'
 
       buildEllipsis()
 
-
-    angular.element($window).bind 'resize', () ->
+    doWork = () ->
       $timeout.cancel attrs.lastWindowTimeoutEvent
 
       attrs.lastWindowTimeoutEvent = $timeout () ->
@@ -73,4 +72,10 @@ angular.module('gi.ui').directive 'giOverflow'
         attrs.lastWindowResizeWidth = $window.innerWidth
         attrs.lastWindowResizeHeight = $window.innerHeight
       , 75
+    angular.element($window).bind 'resize', () ->
+      doWork()
+
+    #Make sure we always fire at least once
+    doWork()
+
 ]

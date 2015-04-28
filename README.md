@@ -4,6 +4,10 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.0.3
+- Fixed issue with giOverflow directive where the text would not render
+until the first resize event.
+
 v1.0.2
 - Upgraded to latest textAngular copmonent
 
