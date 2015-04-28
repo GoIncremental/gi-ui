@@ -16372,7 +16372,7 @@ angular.module('gi.ui').directive('giOverflow', [
         giOverflow: '='
       },
       link: function(scope, elem, attrs) {
-        var buildEllipsis, isOverflow, isTruncated, showingAll, toggle;
+        var buildEllipsis, doWork, isOverflow, isTruncated, showingAll, toggle;
         isTruncated = false;
         showingAll = false;
         isOverflow = function(e) {
@@ -16425,7 +16425,7 @@ angular.module('gi.ui').directive('giOverflow', [
           }
           return buildEllipsis();
         };
-        return angular.element($window).bind('resize', function() {
+        doWork = function() {
           $timeout.cancel(attrs.lastWindowTimeoutEvent);
           return attrs.lastWindowTimeoutEvent = $timeout(function() {
             if (attrs.lastWindowResizeWidth !== $window.innerWidth || attrs.lastWindowResizeHeight !== $window.innerHeight) {
@@ -16434,7 +16434,11 @@ angular.module('gi.ui').directive('giOverflow', [
             attrs.lastWindowResizeWidth = $window.innerWidth;
             return attrs.lastWindowResizeHeight = $window.innerHeight;
           }, 75);
+        };
+        angular.element($window).bind('resize', function() {
+          return doWork();
         });
+        return doWork();
       }
     };
   }
