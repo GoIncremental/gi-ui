@@ -4,6 +4,27 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.0.4
+- Added support for an options object to be send to giOverflow.
+
+  - text: String. containing the text to be rendered by the contrl
+  - showingAll: Bool. to allow client control of whether the directive should be in showing all or truncating mode
+  (default = false)
+  - renderControls: Bool. Whether the directive should be responsible for rendering the Show More / Show Less buttons (default = true)
+
+In your controller (defaults shown):
+````
+$scope.options =
+  text: ""
+  showingAll: false
+  renderControls: true
+````
+
+In your view:
+````
+<div giOverflow="options">
+
+````
 v1.0.3
 - Fixed issue with giOverflow directive where the text would not render
 until the first resize event.
