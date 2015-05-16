@@ -16372,56 +16372,76 @@ angular.module('gi.ui').directive('giOverflow', [
         giOverflow: '='
       },
       link: function(scope, elem, attrs) {
-        var buildEllipsis, doWork, isOverflow, isTruncated, showingAll, toggle;
+        var buildEllipsis, doWork, isOverflow, isTruncated, renderControls, showingAll, toggle;
         isTruncated = false;
         showingAll = false;
+        renderControls = true;
         isOverflow = function(e) {
           return e[0].scrollHeight > e[0].clientHeight;
         };
         buildEllipsis = function() {
-          var appendLess, appendMore, bindArray, bindArrayStartingLength, ellipsisSymbol, initialMaxHeight, needsFlow;
+          var appendLess, appendMore, bindArray, bindArrayStartingLength, ellipsisSymbol, initialMaxHeight, needsFlow, text;
           isTruncated = false;
           if (scope.giOverflow != null) {
-            bindArray = scope.giOverflow.split(" ");
-            ellipsisSymbol = "...";
-            appendMore = '<br/><br/><p class="gi-over gi-over-more"><span><a href="#">Show more <span class="glyphicon glyphicon-arrow-down"></span></a></span></p>';
-            appendLess = '<br/><br/><p class="gi-over gi-over-less"><span><a href="#">Show less <span class="glyphicon glyphicon-arrow-up"></a></span></p>';
-            elem.html(scope.giOverflow);
-            if (isOverflow(elem)) {
-              needsFlow = true;
-              bindArrayStartingLength = bindArray.length;
-              initialMaxHeight = elem[0].clientHeight;
-              elem.html(scope.ngBind + ellipsisSymbol + appendMore);
-              while ((!isTruncated) && bindArray.length > 0) {
-                bindArray.pop();
-                elem.html(bindArray.join(" ") + ellipsisSymbol + appendMore);
-                if ((elem[0].scrollHeight < initialMaxHeight) || (!isOverflow(elem))) {
-                  isTruncated = true;
-                }
-              }
-            } else if (showingAll) {
-              elem.html(scope.giOverflow + appendLess);
+            if (angular.isObject(scope.giOverflow)) {
+              text = scope.giOverflow.text;
+              showingAll = scope.giOverflow.expanded;
+              renderControls = scope.giOverflow.renderControls;
+            } else {
+              text = scope.giOverflow;
             }
-            return elem.find('span').bind("click", function(e) {
-              e.preventDefault();
-              return scope.$apply(toggle());
-            });
+            if (showingAll) {
+              elem.addClass('showall');
+            } else {
+              elem.removeClass('showall');
+            }
+            if (text != null) {
+              bindArray = text.split(" ");
+              ellipsisSymbol = "...";
+              if (renderControls) {
+                appendMore = '<div class="gi-over gi-over-more col-xs-6"><a href="#">Show more <span class="glyphicon glyphicon-arrow-down"></span></a></div>';
+                appendLess = '<div class="gi-over gi-over-less col-xs-6"><a href="#">Show less <span class="glyphicon glyphicon-arrow-up"></span></a></div>';
+              } else {
+                appendMore = '';
+                appendLess = '';
+              }
+              elem.html('<div class="col-xs-12">' + text + '</div>');
+              if (isOverflow(elem)) {
+                needsFlow = true;
+                bindArrayStartingLength = bindArray.length;
+                initialMaxHeight = elem[0].clientHeight;
+                elem.html(scope.ngBind + ellipsisSymbol + appendMore);
+                while ((!isTruncated) && bindArray.length > 0) {
+                  bindArray.pop();
+                  elem.html('<div class="col-xs-12">' + bindArray.join(" ") + ellipsisSymbol + '</div>' + appendMore);
+                  if ((elem[0].scrollHeight < initialMaxHeight) || (!isOverflow(elem))) {
+                    isTruncated = true;
+                  }
+                }
+              } else if (showingAll) {
+                elem.html('<div class="col-xs-12">' + text + '</div>' + appendLess);
+              }
+              if (renderControls) {
+                return elem.find('a').bind("click", function(e) {
+                  e.preventDefault();
+                  return scope.$apply(toggle());
+                });
+              }
+            }
           }
         };
         attrs.lastWindowResizeTime = 0;
         attrs.lastWindowResizeWidth = 0;
         attrs.lastWindowResizeHeight = 0;
         attrs.lastWindowTimeoutEvent = null;
-        scope.$watch('overflow', function() {
+        scope.$watch('giOverflow', function(newVal) {
           return buildEllipsis();
-        });
+        }, true);
         toggle = function() {
           if (showingAll) {
             showingAll = false;
-            elem.removeClass('showall');
           } else {
             showingAll = true;
-            elem.addClass('showall');
           }
           return buildEllipsis();
         };
