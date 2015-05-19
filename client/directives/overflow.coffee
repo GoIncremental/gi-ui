@@ -37,7 +37,7 @@ angular.module('gi.ui').directive 'giOverflow'
             appendMore = ''
             appendLess = ''
 
-          elem.html('<div class="col-xs-12">' + text + '</div>')
+          elem.html('<div class="col-xs-12 gi-over gi-over-body">' + text + '</div>')
 
           # If text has overflow
           if isOverflow(elem)
@@ -49,12 +49,12 @@ angular.module('gi.ui').directive 'giOverflow'
             # until there is no overflow
             while (not isTruncated) and bindArray.length > 0
               bindArray.pop()
-              elem.html('<div class="col-xs-12">' + bindArray.join(" ") + ellipsisSymbol + '</div>' + appendMore)
+              elem.html('<div class="col-xs-12 gi-over gi-over-body">' + bindArray.join(" ") + ellipsisSymbol + '</div>' + appendMore)
               if (elem[0].scrollHeight < initialMaxHeight) or
               (not isOverflow(elem))
                 isTruncated = true
           else if showingAll
-            elem.html('<div class="col-xs-12">' + text + '</div>' + appendLess)
+            elem.html('<div class="col-xs-12 gi-over gi-over-body">' + text + '</div>' + appendLess)
 
           if renderControls
             elem.find('a').bind "click", (e) ->
