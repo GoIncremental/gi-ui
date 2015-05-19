@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.0.5
+- Added styling classes on gi-overflow.  All divs now have gi-overflow and the body additionally has gi-overflow-body
+
 v1.0.4
 - Added support for an options object to be send to giOverflow.
 
