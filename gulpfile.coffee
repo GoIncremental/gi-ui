@@ -36,6 +36,7 @@ libs = () ->
     'textAngular/src/textAngular.js'
     'textAngular/src/textAngular-sanitize.js'
     'textAngular/src/textAngularSetup.js'
+    'ngprogress/build/ngProgress.js'
   ], {cwd:'bower_components/'})
 
 gulp.task 'clean', (cb) ->
