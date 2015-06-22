@@ -6,6 +6,7 @@ Reusable Angular UI components (mostly as directives), that integrate well with 
 ### Release Notes
 v1.2.0
 - added angular-spinner
+- added css styling for ngProgress bar
 
 v1.1.0
 - added ngProgress support including css
