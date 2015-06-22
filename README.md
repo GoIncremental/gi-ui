@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.2.0
+- added angular-spinner
+
 v1.1.0
 - added ngProgress support including css
 v1.0.5

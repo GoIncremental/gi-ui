@@ -9,7 +9,9 @@
     "ng-file-upload": "~3.1.2",
     "ng-sortable": "~1.1.9",
     "angular-ui-tree": "~2.2.0",
-    "ngprogress": "~1.0.7"
+    "ngprogress": "~1.0.7",
+    "angular-spinner": "~0.6.1",
+    "gi-util": "^1.5.4"
   },
   "dependencies": {
     "bootstrap-sass": "~3.3.3",

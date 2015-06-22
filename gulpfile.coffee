@@ -37,6 +37,8 @@ libs = () ->
     'textAngular/src/textAngular-sanitize.js'
     'textAngular/src/textAngularSetup.js'
     'ngprogress/build/ngProgress.js'
+    'spin.js/spin.js'
+    'angular-spinner/angular-spinner.js'
   ], {cwd:'bower_components/'})
 
 gulp.task 'clean', (cb) ->
