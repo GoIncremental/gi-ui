@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.3.0
+- added giEnter directive to allow events to be evaluated on enter keyup
+
 v1.2.0
 - added angular-spinner
 - added css styling for ngProgress bar
