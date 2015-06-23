@@ -17602,6 +17602,22 @@ angular.module('gi.ui').directive('giFloat', [
   }
 ]);
 
+angular.module('gi.ui').directive('giEnter', [
+  function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        element.bind("keyup", function(event) {
+          if (event.which === 13) {
+            scope.$evalAsync(attrs.giEnter);
+            event.preventDefault();
+          }
+        });
+      }
+    };
+  }
+]);
+
 angular.module('gi.ui').directive('giInteger', [
   function() {
     var intRegex;
