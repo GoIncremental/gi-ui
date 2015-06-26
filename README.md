@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.3.1
+- freeze version of bootstrap-sass (currently 3.3.4) as 3.3.5 broke Glyphicons
+
 v1.3.0
 - added giEnter directive to allow events to be evaluated on enter keyup
 
