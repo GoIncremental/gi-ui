@@ -16831,7 +16831,7 @@ angular.module('ngProgress', ['ngProgress.directive', 'ngProgress.provider']);
 	}
 }(window));
 
-angular.module('gi.ui', ['gi.util', 'textAngular', 'ngProgress', 'ui.select', 'ui.bootstrap', 'angularSpinner']);
+angular.module('gi.ui', ['gi.util', 'textAngular', 'ngProgress', 'ui.select', 'ui.bootstrap', 'angularSpinner', 'ngFileUpload']);
 
 angular.module('gi.ui').directive('giDtproperty', [
   '$compile', '$timeout', function($compile, $timeout) {
@@ -17611,6 +17611,26 @@ angular.module('gi.ui').directive('giEnter', [
           if (event.which === 13) {
             scope.$evalAsync(attrs.giEnter);
             event.preventDefault();
+          }
+        });
+      }
+    };
+  }
+]);
+
+angular.module('gi.ui').directive('giFocus', [
+  '$parse', function($parse) {
+    return {
+      restrict: "A",
+      link: function(scope, element, attrs) {
+        var attrGetter, checkForChangeInEvaluatedValue;
+        attrGetter = $parse(attrs.giFocus);
+        checkForChangeInEvaluatedValue = function() {
+          return attrGetter(scope);
+        };
+        return scope.$watch(checkForChangeInEvaluatedValue, function(newVal) {
+          if (newVal != null) {
+            return element[0].focus();
           }
         });
       }
