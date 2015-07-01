@@ -327,7 +327,7 @@ angular.module('gi.ui').directive('giDatatable', [
               return found;
             });
           }
-          if ($scope.options.sortProperty) {
+          if ($scope.options.sortProperty && !$scope.options.externalSort) {
             if ($scope.options.sortDirection === "asc") {
               sortDir = false;
             } else {
@@ -496,6 +496,8 @@ angular.module('gi.ui').directive('giDatatable', [
               $scope.options.sortDirection = "asc";
             }
             return refresh();
+          } else if ($scope.options.externalSort) {
+            return $scope.options.externalSort(property);
           }
         };
       }

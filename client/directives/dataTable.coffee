@@ -220,7 +220,7 @@ angular.module('gi.ui').directive 'giDatatable'
           found
         )
       #sort the items before they go for pagination
-      if $scope.options.sortProperty
+      if $scope.options.sortProperty and not $scope.options.externalSort
         if $scope.options.sortDirection is "asc"
           sortDir = false
         else
@@ -367,4 +367,6 @@ angular.module('gi.ui').directive 'giDatatable'
           $scope.options.sortProperty = property
           $scope.options.sortDirection = "asc"
         refresh()
+      else if $scope.options.externalSort
+        $scope.options.externalSort(property)
 ]
