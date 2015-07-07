@@ -11,11 +11,11 @@
 <div class="row">
   <div class="col-md-12">
     <!--Body content-->
-    <table class="table {{ (!options.formatter)?'table-striped':''}} table-condensed table-hover">
+    <table class="table {{ (!options.formatter)?'table-striped':''}} table-condensed table-hover" style="word-break:break-all">
       <thead>
         <tr>
           <th ng-show="options.selectAll"><a ng-click="toggleSelectAll()" ng-model="selectAll">{{selectAll}}</a></th>
-          <th ng-repeat="column in options.columns" ng-click="columnSort(column.property)" ng-class="column.class">
+          <th ng-repeat="column in options.columns" style="width: auto; word-wrap: break-word;"ng-click="columnSort(column.property)" ng-class="column.class">
             {{column.header}}
             <i class="glyphicon" ng-class="{ 'glyphicon-chevron-up': options.sortDirection == 'desc', 'glyphicon-chevron-down': options.sortDirection == 'asc' }" ng-show="options.sortProperty == column.property"></i>
           </th>

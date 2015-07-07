@@ -39,6 +39,7 @@ libs = () ->
     'ngprogress/build/ngProgress.js'
     'spin.js/spin.js'
     'angular-spinner/angular-spinner.js'
+    'angular-ui-tree/dist/angular-ui-tree.js'
   ], {cwd:'bower_components/'})
 
 gulp.task 'clean', (cb) ->
@@ -66,8 +67,7 @@ gulp.task 'moveCSS', () ->
   gulp.src([
     'bower_components/angular-ui-select/dist/select.css'
     'bower_components/textAngular/src/textAngular.css'
-    'bower_components/ng-sortable/dist/ng-sortable.style.css'
-  ])
+    'bower_components/ng-sortable/dist/ng-sortable.style.css'  ])
   .pipe(rename({prefix: '_', extname: '.scss'}))
   .pipe(gulp.dest('client/scss'))
 
