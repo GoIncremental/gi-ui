@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.5.0
+- add ui-tree-view support
+
 v1.4.0
 - added giFocus directive (helps with tab ordering issues)
 - added ngFileUpload service
