@@ -1,8 +1,6 @@
 @import "variables";
 @import "styles";
 
-td {
-  table-layout: fixed;
-word-wrap: break-word;
-word-break: break-all;
+.gi-table  td {
+  word-break: break-all;
 }
