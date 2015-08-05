@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.5.2
+- update angular-bootstrap
+
 v1.5.1
 - fixes giOverflow on firefox and ie
 
