@@ -19004,6 +19004,23 @@ angular.module('ngProgress', ['ngProgress.directive', 'ngProgress.provider']);
 
 angular.module('gi.ui', ['gi.util', 'textAngular', 'ngProgress', 'ui.select', 'ui.bootstrap', 'ui.tree', 'angularSpinner', 'ngFileUpload']);
 
+angular.module('gi.ui').filter('giShorten', [
+  function() {
+    return function(str, len) {
+      var result;
+      result = '';
+      if (str != null) {
+        if (str.length > len) {
+          result = str.substring(0, len) + '...';
+        } else {
+          result = str;
+        }
+      }
+      return result;
+    };
+  }
+]);
+
 angular.module('gi.ui').directive('giDtproperty', [
   '$compile', '$timeout', function($compile, $timeout) {
     return {
@@ -19981,7 +19998,9 @@ angular.module('gi.ui').directive('giOverflow', [
                 appendLess = '';
               }
               elem.html('<div class="col-xs-12 gi-over gi-over-body">' + text + '</div>');
-              if (isOverflow(elem)) {
+              if (showingAll) {
+                elem.html('<div class="col-xs-12 gi-over gi-over-body">' + text + '</div>' + appendLess);
+              } else if (isOverflow(elem)) {
                 needsFlow = true;
                 bindArrayStartingLength = bindArray.length;
                 initialMaxHeight = elem[0].clientHeight;
@@ -19993,8 +20012,6 @@ angular.module('gi.ui').directive('giOverflow', [
                     isTruncated = true;
                   }
                 }
-              } else if (showingAll) {
-                elem.html('<div class="col-xs-12 gi-over gi-over-body">' + text + '</div>' + appendLess);
               }
               if (renderControls) {
                 return elem.find('a').bind("click", function(e) {
@@ -20035,23 +20052,6 @@ angular.module('gi.ui').directive('giOverflow', [
         });
         return doWork();
       }
-    };
-  }
-]);
-
-angular.module('gi.ui').filter('giShorten', [
-  function() {
-    return function(str, len) {
-      var result;
-      result = '';
-      if (str != null) {
-        if (str.length > len) {
-          result = str.substring(0, len) + '...';
-        } else {
-          result = str;
-        }
-      }
-      return result;
     };
   }
 ]);
