@@ -28,8 +28,8 @@ libs = () ->
   gulp.src([
     'angular-ui-select/dist/select.js'
     'angular-bootstrap/ui-bootstrap-tpls.js'
-    'ng-file-upload/angular-file-upload-shim.js'
-    'ng-file-upload/angular-file-upload.js'
+    'ng-file-upload/ng-file-upload-shim.js'
+    'ng-file-upload/ng-file-upload.js'
     'ng-sortable/dist/ng-sortable.js'
     'rangy/rangy-core.js'
     'rangy/rangy-selectionsaverestore.js'
