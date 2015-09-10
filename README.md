@@ -4,6 +4,9 @@ gi-ui
 Reusable Angular UI components (mostly as directives), that integrate well with the GoIncremental  stack - https://github.com/goincremental/gi
 
 ### Release Notes
+v1.6.0
+- update ng-file-upload: WARNING: this may break existing uses of ngFileUpload.
+
 v1.5.2
 - update angular-bootstrap
 
