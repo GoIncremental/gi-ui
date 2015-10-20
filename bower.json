@@ -11,7 +11,7 @@
     "angular-ui-tree": "~2.2.0",
     "ngprogress": "~1.0.7",
     "angular-spinner": "~0.6.1",
-    "gi-util": "^1.9.2"
+    "gi-util": "^1.9.7"
   },
   "dependencies": {
     "bootstrap-sass": "3.3.4",
